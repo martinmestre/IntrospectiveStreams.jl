@@ -1,0 +1,13 @@
+name = "IntrospectiveStreams"
+uuid = "2f1adcd6-4cd2-49ed-b5e3-e45b62924b9e"
+authors = ["Martín Mestre <mmestre@fcaglp.unlp.edu.ar> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
