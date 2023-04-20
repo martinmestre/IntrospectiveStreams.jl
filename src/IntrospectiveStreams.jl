@@ -1,5 +1,5 @@
 module IntrospectiveStreams
 
-# Write your package code here.
+include("DataMethods.jl")
 
 end
