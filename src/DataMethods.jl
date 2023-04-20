@@ -1,7 +1,6 @@
 module DataMethods
 
 using DataFrames, DataFramesMeta
-using CSV
 using PolygonOps
 using StaticArrays
 using PythonCall
