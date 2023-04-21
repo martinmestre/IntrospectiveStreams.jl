@@ -1,21 +1,3 @@
-module DataMethods
-
-using DataFrames, DataFramesMeta
-using PolygonOps
-using StaticArrays
-using PythonCall
-
-@py begin
-    import galstreams
-    import astropy.coordinates as coord
-    import astropy.units as u
-    import astropy.table as at
-    import ezmist
-    import gala.coordinates as galacoord
-    import pyia
-end
-
-
 """Extinction correction for Gaia magnitudes from Gaia dataset."""
 function extinction_corr(file_orig::String, file_corr::String)::Nothing
     println("file = ", file_corr)
@@ -258,7 +240,4 @@ function reflex_correct!(df::DataFrame, frame::Py)::Nothing
     df.μ₁_corr = df.μ₁cosϕ₂_corr ./ cos.(df.ϕ₂*π/180.)
     df.μ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi2.value)
     return nothing
-end
-
-
 end
