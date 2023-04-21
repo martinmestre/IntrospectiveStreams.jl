@@ -125,27 +125,6 @@ function compute_in_selfCoords!(df::DataFrame)::Py
     return kop_frame
 end
 
-"""Compare two tracks of the seam stream."""
-function compare_tracks(stream₁::String, stream₂::String)
-    track₁ = mwsts[stream₁]
-    track₂ = mwsts[stream₂]
-    println(track₁)
-    frame = track.stream_frame
-    self_coords₁ = track₁.track.transform_to(frame)
-    self_coords₂ = track₂.track.transform_to(frame)
-    ϕ₁ = pyconvert(Vector{Float64}, self_coords₁.phi1.value)
-    D₁ = pyconvert(Vector{Float64}, self_coords₁.distance.value)
-    ϕ₂ = pyconvert(Vector{Float64}, self_coords₂.phi1.value)
-    D₂ = pyconvert(Vector{Float64}, self_coords₂.distance.value)
-    df₁ = DataFrame(x=ϕ₁, y=D₁)
-    df₂ = DataFrame(x=ϕ₂, y=D₂)
-    size_inches = (6*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df₂)+data(df₁)*visual(color="red"))*mapping(:x=>L"ϕ₁", :y =>L"D")*visual(Lines)
-    draw!(fig, plt, axis=(; limits=((-20,nothing),(0, nothing))))
-    electrondisplay(fig)
-end
 
 "Mask out field globular clusters."
 function mask_gc!(df_stream, df_gc)
