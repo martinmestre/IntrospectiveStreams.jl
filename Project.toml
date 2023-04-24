@@ -11,6 +11,7 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
+PolygonOps = "0.1"
 PythonCall = "0.9"
 julia = "1"
 
