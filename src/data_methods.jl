@@ -241,3 +241,24 @@ function reflex_correct!(df::DataFrame, frame::Py)::Nothing
     df.μ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi2.value)
     return nothing
 end
+
+"""Clean the cross-match."""
+function clean_xmatch!(df::DataFrame)
+    # g_0 and g are SPLUS and Gaia mags corrected by extinction.
+    unicos = size(unique(df.ID))[1]
+    n_multiple = m_multiple = 0
+    for i=size(df)[1]:-1:1
+        n_repe = count((df.ID.==df.ID[i]))
+        if n_repe>1
+            n_multiple += 1
+            m_multiple += n_repe
+            idx = findall(x->x==df.ID[i], df.ID)
+            dif_mag = abs.([ df.g_0[idx[1]]-df.g[idx[1]], df.g_0[idx[2]]-df.g[idx[2]] ])
+            if dif_mag[1] < dif_mag[2]
+                deleteat!(df, [idx[2]])
+            else
+                deleteat!(df, [idx[1]])
+            end
+        end
+    end
+end

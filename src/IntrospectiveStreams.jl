@@ -4,6 +4,8 @@ module IntrospectiveStreams
     using PolygonOps
     using StaticArrays
     using PythonCall
+    using CairoMakie, AlgebraOfGraphics
+    using ElectronDisplay
 
     @py begin
         import galstreams
@@ -29,9 +31,29 @@ module IntrospectiveStreams
             filter_with_ϕ₂!,
             filter_PWB18!,
             filter_box_μ,
-            reflex_correct!
+            reflex_correct!,
+            clean_xmatch!
 
+    export  plot_sky_histo,
+            plot_sky_histo_gc,
+            plot_sky_histo_selfFrame,
+            plot_sky_scatter_selfFrame,
+            plot_sky_scatter_μ_arrows_selfFrame,
+            plot_sky_scatter_μ_arrows_corr_selfFrame,
+            plot_cmd_histo,
+            plot_isochrone,
+            plot_isochrone_data,
+            plot_μ,
+            plot_μ_window,
+            plot_μ_selfFrame,
+            plot_μ_selfFrame_window,
+            plot_μ_scatter_selfFrame_window,
+            plot_μ_corr_scatter_selfFrame,
+            plot_μ_corr_scatter_selfFrame_window,
+            plot_μ_corr_histo_selfFrame_window,
+            plot_μ_corr_track_selfFrame
 
-    include("DataMethods.jl")
+    include("data_methods.jl")
+    include("plot_methods.jl")
 
 end
