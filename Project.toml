@@ -14,6 +14,7 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
+AlgebraOfGraphics = "0.6"
 DataFrames = "1"
 DataFramesMeta = "0.14"
 ElectronDisplay = "1"
