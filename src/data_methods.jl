@@ -111,7 +111,7 @@ function mask_gc!(df_stream, df_gc)
     for i in 1:nrow(df_gc)
         Δra = df_stream.ra.-df_gc.ra[i]
         Δdec = df_stream.dec.-df_gc.dec[i]
-        bool_gc .= sqrt.(Δra.^2 .+ Δdec.^2) .> 0.5
+        @. bool_gc = sqrt(Δra^2+Δdec^2) > 0.5
         @subset!(df_stream, identity(bool_gc))
     end
 end
