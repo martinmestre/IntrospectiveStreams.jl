@@ -41,8 +41,7 @@ function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame)::Nothing
     df_stream.g_abs = df_stream.g - df_stream.distmod
     points = [[df_stream.color[i], df_stream.g_abs[i]] for i in 1:nrow(df_stream) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-    df_stream = df_stream[inside,:]
-    print("inside function nrow=$(nrow(df_stream))")
+    @subset!(df_stream, identity(inside))
     return nothing
 end
 
