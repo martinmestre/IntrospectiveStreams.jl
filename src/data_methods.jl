@@ -15,7 +15,6 @@ end
 
 """Data curation of Gaia dataset."""
 function curation!(df::DataFrame, tol::Vector{Number})::Nothing
-    df.color = df.bp - df.rp
     df.pmra_error_rel = df.pmra_error./df.pmra
     @subset!(df, (:pmra_error_rel .< tol[1]))
     df.pmdec_error_rel = df.pmdec_error./df.pmdec
@@ -86,9 +85,9 @@ function compute_in_selfCoords!(df::DataFrame, frame::Py)::Nothing
     df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
     df.ϕ₂ = pyconvert(Vector{Float64}, self_coords.phi2.deg)
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
-    df.μ₁ = df.μ₁cosϕ₂ ./ cos.(df.ϕ₂*π/180.)
+    @. df.μ₁ = df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    df.D = 1.0 ./ df.parallax
+    @. df.D = 1.0/df.parallax
     return nothing
 end
 
@@ -100,9 +99,9 @@ function compute_in_selfCoords!(df::DataFrame)::Py
     df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
     df.ϕ₂ = pyconvert(Vector{Float64}, self_coords.phi2.deg)
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
-    df.μ₁ = df.μ₁cosϕ₂ ./ cos.(df.ϕ₂*π/180.)
+    @. df.μ₁ = df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    df.D = 1.0 ./ df.parallax
+    @. df.D = 1.0/df.parallax
     return kop_frame
 end
 
@@ -112,8 +111,8 @@ function mask_gc!(df_stream, df_gc)
     for i in 1:nrow(df_gc)
         Δra = df_stream.ra.-df_gc.ra[i]
         Δdec = df_stream.dec.-df_gc.dec[i]
-        bool_gc = sqrt.(Δra.^2+Δdec.^2) .> 0.5
-        @subset!(df_stream, collect(bool_gc))
+        bool_gc .= sqrt.(Δra.^2 .+ Δdec.^2) .> 0.5
+        @subset!(df_stream, identity(bool_gc))
     end
 end
 
@@ -312,9 +311,7 @@ function pipeline(name_s, name_t)
     # df_iso = DataFrame(CSV.File(iso_file))
     df_stream.color = df_stream.bp - df_stream.rp
     df_iso.color = df_iso.bp - df_iso.rp
-    df_stream  = dm.filter_cmd(df_stream, df_iso)
-    nrow(df_stream)
-    #df_cmd = dm.filter_cmd(df_stream, df_iso)
+    dm.filter_cmd!(df_stream, df_iso)
     # %%
 
     """Curation."""
