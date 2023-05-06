@@ -85,23 +85,23 @@ function compute_in_selfCoords!(df::DataFrame, frame::Py)::Nothing
     df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
     df.ϕ₂ = pyconvert(Vector{Float64}, self_coords.phi2.deg)
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
-    @. df.μ₁ = df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
+    df.μ₁ = @. df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    @. df.D = 1.0/df.parallax
+    df.D = 1.0./df.parallax
     return nothing
 end
 
 """Compute stream stars' self coordinates using gala's KOPOSOV frame and add to dataframe."""
-function compute_in_selfCoords!(df::DataFrame)::Py
+function compute_in_self_coords!(df::DataFrame)::Py
     sky_coords = coord.SkyCoord(ra=Py(df.ra)*u.deg, dec=Py(df.dec)*u.deg, pm_ra_cosdec=Py(df.pmra)*u.mas/u.yr, pm_dec=Py(df.pmdec)*u.mas/u.yr, frame="icrs")
     kop_frame = galacoord.GD1
     self_coords = sky_coords.transform_to(kop_frame)
     df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
     df.ϕ₂ = pyconvert(Vector{Float64}, self_coords.phi2.deg)
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
-    @. df.μ₁ = df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
+    df.μ₁ = @. df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    @. df.D = 1.0/df.parallax
+    df.D = 1.0./df.parallax
     return kop_frame
 end
 
@@ -111,13 +111,13 @@ function mask_gc!(df_stream, df_gc)
     for i in 1:nrow(df_gc)
         Δra = df_stream.ra.-df_gc.ra[i]
         Δdec = df_stream.dec.-df_gc.dec[i]
-        @. bool_gc = sqrt(Δra^2+Δdec^2) > 0.5
+        bool_gc = @. sqrt(Δra^2+Δdec^2) > 0.5
         @subset!(df_stream, identity(bool_gc))
     end
 end
 
 """Filter with stream track on the sky."""
-function filter_stream_on_sky!(df_stars::DataFrame, df_track::DataFrame, width::Number)
+function filter_on_sky!(df_stars::DataFrame, df_track::DataFrame, width::Number)
     up = df_track.ϕ₂.+width
     down =  df_track.ϕ₂.-width
     poly_ϕ₁ = vcat(df_track.ϕ₁, reverse(df_track.ϕ₁), df_track.ϕ₁[1])
@@ -125,12 +125,12 @@ function filter_stream_on_sky!(df_stars::DataFrame, df_track::DataFrame, width::
     polygon = SVector.(poly_ϕ₁, poly_ϕ₂)
     points = [[df_stars.ϕ₁[i], df_stars.ϕ₂[i]] for i in 1:nrow(df_stars) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-    @subset!(df_stars, collect(inside))
+    @subset!(df_stars, identity(inside))
     return nothing
 end
 
 """Filter with stream on μ-space."""
-function filter_stream_μ_space!(df_stars::DataFrame, df_track::DataFrame, Δμ::Number)
+function filter_on_μ_plane!(df_stars::DataFrame, df_track::DataFrame, Δμ::Number)
     left = df_track.μ₁cosϕ₂.-Δμ
     right =  df_track.μ₁cosϕ₂.+Δμ
     poly_y = vcat(df_track.μ₂, reverse(df_track.μ₂), df_track.μ₂[1])
@@ -138,12 +138,12 @@ function filter_stream_μ_space!(df_stars::DataFrame, df_track::DataFrame, Δμ:
     polygon = SVector.(poly_x, poly_y)
     points = [[df_stars.μ₁cosϕ₂[i], df_stars.μ₂[i]] for i in 1:nrow(df_stars) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-    @subset!(df_stars, collect(inside))
+    @subset!(df_stars, identity(inside))
     return nothing
 end
 
 """Non-mutating filter with stream track in any of its dimensions."""
-function filter_with_track(df_stars::DataFrame, df_track::DataFrame, S::Symbol, σ::Number)::DataFrame
+function filter_along_ϕ₁(df_stars::DataFrame, df_track::DataFrame, S::Symbol, σ::Number)::DataFrame
     if S == :ϕ₂
         q🌠 = df_stars.ϕ₂
         q_track = df_track.ϕ₂
@@ -170,11 +170,11 @@ function filter_with_track(df_stars::DataFrame, df_track::DataFrame, S::Symbol, 
     polygon = SVector.(poly_ϕ₁, poly_q)
     points = [[df_stars.ϕ₁[i], q🌠[i]] for i in 1:nrow(df_stars) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-    return @subset(df_stars, collect(inside))
+    return @subset(df_stars, identity(inside))
 end
 
 """Mutating filter with stream track in any of its dimensions."""
-function filter_with_track!(df_stars::DataFrame, df_track::DataFrame, S::Symbol, σ::Number)::Nothing
+function filter_along_ϕ₁!(df_stars::DataFrame, df_track::DataFrame, S::Symbol, σ::Number)::Nothing
     if S == :ϕ₂
         q🌠 = df_stars.ϕ₂
         q_track = df_track.ϕ₂
@@ -201,7 +201,7 @@ function filter_with_track!(df_stars::DataFrame, df_track::DataFrame, S::Symbol,
     polygon = SVector.(poly_ϕ₁, poly_q)
     points = [[df_stars.ϕ₁[i], q🌠[i]] for i in 1:nrow(df_stars) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-    @subset!(df_stars, collect(inside))
+    @subset!(df_stars, identity(inside))
     return nothing
 end
 
@@ -211,20 +211,19 @@ function filter_with_ϕ₂!(df::DataFrame, σ::Number)::Nothing
     return nothing
 end
 
-"""Filter as in PWB18."""
-function filter_PWB18!(df::DataFrame)::Nothing
-    @subset!(df, abs.(:ϕ₂.-0.5) .< 0.75)
-    @subset!(df, -50 .< :ϕ₁ .< -10)
-    return nothing
-end
-
 """Filter with a box in PM space."""
-function filter_box_μ(df::DataFrame, box::Vector{Vector{Float64}})::Nothing
+function filter_box_on_μ_plane!(df::DataFrame, box::Vector{Vector{Float64}})::Nothing
     @subset!(df, box[1][1] .< :μ₁_corr .< box[1][2])
     @subset!(df_box, box[2][1] .< :μ₂_corr .< box[2][2])
     return nothing
 end
 
+"""Filter as in PWB18."""
+function filter_from_PWB18!(df::DataFrame)::Nothing
+    @subset!(df, abs.(:ϕ₂.-0.5) .< 0.75)
+    @subset!(df, -50 .< :ϕ₁ .< -10)
+    return nothing
+end
 
 """Reflex Correction."""
 function reflex_correct!(df::DataFrame, frame::Py)::Nothing
@@ -235,7 +234,7 @@ function reflex_correct!(df::DataFrame, frame::Py)::Nothing
     gc_frame = coord.Galactocentric(galcen_distance=rsun, galcen_v_sun=vsun, z_sun=0*u.pc)
     sky_coords_corr = galacoord.reflex_correct(sky_coords, gc_frame)
     df.μ₁cosϕ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi1_cosphi2.value)
-    df.μ₁_corr = df.μ₁cosϕ₂_corr ./ cos.(df.ϕ₂*π/180.)
+    df.μ₁_corr = @. df.μ₁cosϕ₂_corr/cos(df.ϕ₂*π/180.0)
     df.μ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi2.value)
     return nothing
 end
