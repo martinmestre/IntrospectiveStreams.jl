@@ -24,13 +24,13 @@ module IntrospectiveStreams
             compute_in_self_coords!,
             mask_gc!,
             filter_cmd!,
-            filter_stream_on_sky!,
-            filter_stream_on_μ_plane!,
+            filter_on_sky!,
+            filter_on_μ_plane!,
             filter_along_ϕ₁,
             filter_along_ϕ₁!,
             filter_with_ϕ₂!,
-            filter_from_PWB18!,
-            filter_box_μ,
+            filter_PWB18!,
+            filter_box_on_μ_plane!,
             reflex_correct!,
             clean_xmatch!
 
