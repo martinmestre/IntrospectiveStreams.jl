@@ -34,24 +34,20 @@ module IntrospectiveStreams
             reflex_correct!,
             clean_xmatch!
 
-    export  plot_sky_histo,
-            plot_sky_histo_gc,
-            plot_sky_histo_selfFrame,
-            plot_sky_scatter_selfFrame,
-            plot_sky_scatter_μ_arrows_selfFrame,
-            plot_sky_scatter_μ_arrows_corr_selfFrame,
-            plot_cmd_histo,
-            plot_isochrone,
-            plot_isochrone_data,
-            plot_μ,
-            plot_μ_window,
-            plot_μ_selfFrame,
-            plot_μ_selfFrame_window,
-            plot_μ_scatter_selfFrame_window,
-            plot_μ_corr_scatter_selfFrame,
-            plot_μ_corr_scatter_selfFrame_window,
-            plot_μ_corr_histo_selfFrame_window,
-            plot_μ_corr_track_selfFrame
+    export  plot_histog_on_sky,
+            plot_histog_on_sky_with_gc,
+            plot_histog_on_sky_self_frame,
+            plot_scatter_on_sky_self_frame,
+            plot_scatter_on_sky_μ_arrows_self_frame,
+            plot_scatter_on_sky_μ_corr_arrows_self_frame,
+            plot_histog_on_μ_plane,
+            plot_histog_on_μ_plane_self_frame,
+            plot_scatter_on_μ_plane_self_frame,
+            plot_scatter_on_μ_corr_plane_self_frame,
+            plot_μ_corr_self_frame_only_track
+            # plot_cmd_histo,
+            # plot_isochrone,
+            # plot_isochrone_data
 
     include("data_methods.jl")
     include("plot_methods.jl")

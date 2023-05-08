@@ -1,101 +1,431 @@
-"""Plot sky histogram."""
-function plot_sky_histo(df::DataFrame, file::String)
+"""Plot histogram on sky."""
+function plot_histog_on_sky(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (5*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")*
-                            histogram(bins=200)
-    ag=draw!(fig, plt, axis=(;limits=((nothing,nothing),(nothing,nothing))))
+    plt = data(df)*histogram(bins=200)*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")
+    ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-function plot_sky_histo_gc(df::DataFrame, df_gc::DataFrame, file::String)
+function plot_histog_on_sky(df::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=200)*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Plot histogram on sky with globular clusters."""
+function plot_histog_on_sky_with_gc(df::DataFrame, df_gc::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (5*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = (data(df)*histogram(bins=200)+data(df_gc)*visual(color="red"))*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")
     plt_M68 = data(df_gc)*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")*visual(color="black")
-    ag = draw!(fig, plt, axis=(;limits=((180,270),(-30,80))))
+    ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-"""Plot sky histogram in stream frame."""
-function plot_sky_histo_selfFrame(df::DataFrame, df_track::DataFrame, file::String)
+function plot_histog_on_sky_with_gc(df::DataFrame, df_gc::DataFrame, file::String)
     size_inches = (5*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*AlgebraOfGraphics.density()+data(df_track))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-                            # histogram(bins=100)
-    ag = draw!(fig, plt, axis=(;limits=((nothing,nothing),(nothing,nothing))))
+    plt = (data(df)*histogram(bins=200)+data(df_gc)*visual(color="red"))*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")
+    plt_M68 = data(df_gc)*mapping(:ra =>L"RA [$°$]", :dec=>L"Dec [$°$]")*visual(color="black")
+    ag = draw!(fig, plt)
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-"""Plot sky scatter in stream frame."""
-function plot_sky_scatter_selfFrame(df::DataFrame, df_track::DataFrame, file::String)
+
+"""Plot histogram on sky using the stream's frame."""
+function plot_histog_on_sky_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*histogram(bins=100)+data(df_track))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_sky_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*histogram(bins=100)+data(df_track))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_sky_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=100)*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_sky_self_frame(df::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=100)*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+"""Scatter plot on sky using the stream's frame with and without track."""
+function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    # plt = data(df)*visual(markersize=0.7)*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt, axis=(;limits=((nothing,nothing),(-10,2))))
+    ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-"""Plot sky with arrows for μ in stream frame."""
-function plot_sky_scatter_μ_arrows_selfFrame(df::DataFrame, df_track::DataFrame, file::String)
-    step = 500
+function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_sky_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_sky_self_frame(df::DataFrame, file::String)
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Scatter plot on sky with PM (μ) arrows using stream's frame."""
+function plot_scatter_on_sky_μ_arrows_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, step::Integer, file::String)
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=3)+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt) #, axis=(;limits=((-20,20),(-20,20))))
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt,  axis=(;limits=window))
     us = df.μ₁cosϕ₂./cos.(df.ϕ₂*π/180.)
     vs = df.μ₂
-    strength = vec(sqrt.(us .^ 2 .+ vs .^ 2))
-    us .= us #./strength
-    vs .= vs #./strength
-    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = (3/4)strength, lengthscale = 1)
+    strength = @. sqrt(us^2+vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = strength, lengthscale = 1)
     us = (df_track.μ₁cosϕ₂./cos.(df_track.ϕ₂*π/180.))[begin:step:end]
     vs = df_track.μ₂[begin:step:end]
-    strength = vec(sqrt.(us .^ 2 .+ vs .^ 2))
-    us .= us #./strength
-    vs .= vs #./strength
-    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = 2strength, lengthscale = 1, color="blue")
+    strength = @. sqrt(us^2 + vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = strength, lengthscale = 1, color="blue")
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-"""Plot sky with arrows for reflex-corrected μ in stream frame."""
-function plot_sky_scatter_μ_arrows_corr_selfFrame(df::DataFrame, df_track::DataFrame, file::String)
-    step = 300
-    size_inches = (5*3, 2*3)
+function plot_scatter_on_sky_μ_arrows_self_frame(df::DataFrame, df_track::DataFrame, step::Integer, file::String)
+    size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=3)+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    plt = (data(df)*visual(markersize=3))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt)#, axis=(;limits=((0,30),(-10,10))))
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    us = df.μ₁cosϕ₂./cos.(df.ϕ₂*π/180.)
+    vs = df.μ₂
+    strength = @. sqrt(us^2+vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = strength, lengthscale = 1)
+    us = (df_track.μ₁cosϕ₂./cos.(df_track.ϕ₂*π/180.))[begin:step:end]
+    vs = df_track.μ₂[begin:step:end]
+    strength = @. sqrt(us^2 + vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = strength, lengthscale = 1, color="blue")
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Scatter plot on sky with reflex-corrected PM (μ) arrows using stream's frame."""
+function plot_scatter_on_sky_μ_corr_arrows_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, step::Integer, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt,  axis=(;limits=window))
     us = df.μ₁_corr
     vs = df.μ₂_corr
-    strength = vec(sqrt.(us .^ 2 .+ vs .^ 2))
-    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = strength, lengthscale = 0.2)
+    strength = @. sqrt(us^2+vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = strength, lengthscale = 1)
     us = df_track.μ₁_corr[begin:step:end]
     vs = df_track.μ₂_corr[begin:step:end]
-    strength = vec(sqrt.(us .^ 2 .+ vs .^ 2))
-    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = strength, lengthscale = 0.5, color="cyan")
+    strength = @. sqrt(us^2 + vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = strength, lengthscale = 1, color="blue")
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_sky_μ_corr_arrows_self_frame(df::DataFrame, df_track::DataFrame, step::Integer, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    ag = draw!(fig, plt)
+    us = df.μ₁_corr
+    vs = df.μ₂_corr
+    strength = @. sqrt(us^2+vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df.ϕ₁, df.ϕ₂, us, vs, arrowsize = strength, lengthscale = 1)
+    us = df_track.μ₁_corr[begin:step:end]
+    vs = df_track.μ₂_corr[begin:step:end]
+    strength = @. sqrt(us^2 + vs^2)
+    @. us = us/strength
+    @. vs = vs/strength
+    arrows!(df_track.ϕ₁[begin:step:end], df_track.ϕ₂[begin:step:end], us, vs, arrowsize = strength, lengthscale = 1, color="blue")
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Plot histogram on μ plane."""
+function plot_histog_on_μ_plane(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}},  file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=500)*mapping(:pmra =>L"$μ_{RA}$ [mas/yr]", :pmdec=>L"$μ_{Dec}$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_μ_plane(df::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=500)*mapping(:pmra =>L"$μ_{RA}$ [mas/yr]", :pmdec=>L"$μ_{Dec}$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Plot histogram on μ plane using stream's frame with and without track."""
+function plot_histog_on_μ_plane_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=500)*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_μ_plane_self_frame(df::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=500)*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_μ_plane_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*histogram(bins=200)+data(df_track)*visual(markersize=1))*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_on_μ_plane_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*histogram(bins=200)+data(df_track)*visual(markersize=1))*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Scatter plot on μ plane in stream's self-frame with and without track."""
+function plot_scatter_on_μ_plane_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_plane_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_plane_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_plane_self_frame(df::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Scatter plot on reflex-corrected μ plane in stream's self-frame with and without track."""
+function plot_scatter_on_μ_corr_plane_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_corr_plane_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_corr_plane_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt, axis=(;limits=window))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_scatter_on_μ_corr_plane_self_frame(df::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+"""Scatter plot reflex-corrected μ-track in stream's self-frame."""
+function plot_μ_corr_self_frame_only_track(df_track::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df_track)*visual(markersize=2,color="red")*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
+    ag = draw!(fig, plt)
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
@@ -142,136 +472,3 @@ function plot_isochrone_data(df_iso::DataFrame, df_s::DataFrame, file::String)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
-
-"""Plot μ space."""
-function plot_μ(df::DataFrame, file::String)
-    size_inches = (5*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:pmra =>L"$μ_{RA}$ [mas/yr]", :pmdec=>L"$μ_{Dec}$ [mas/yr]")*
-                            histogram(bins=500)
-    ag = draw!(fig, plt)
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Plot μ space inside a window."""
-function plot_μ_window(df::DataFrame, window::Vector{Vector{Float64}}, file::String)
-    size_inches = (5*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:pmra =>L"$μ_{RA}$ [mas/yr]", :pmdec=>L"$μ_{Dec}$ [mas/yr]")*
-                            histogram(bins=2000)
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-end
-
-"""Plot μ space in stream's self-frame."""
-function plot_μ_selfFrame(df::DataFrame, file::String)
-    size_inches = (5*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")*
-                            histogram(bins=500)
-    ag = draw!(fig, plt)
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Plot μ space in stream's self-frame inside a window."""
-function plot_μ_selfFrame_window(df::DataFrame, window::Vector{Vector{Float64}}, file::String)
-    size_inches = (6*3, 5*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*AlgebraOfGraphics.density())*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-"""Plot μ space in stream's self-frame inside a window plus track."""
-function plot_μ_selfFrame_window(df::DataFrame, df_track, window::Vector{Vector{Float64}}, file::String)
-    size_inches = (4*3, 4*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*histogram(bins=2000)+data(df_track)*visual(markersize=1))*mapping(:μ₁cosϕ₂ =>L"$μ_1cosϕ_2$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Scatter plot μ space in stream's self-frame inside a window."""
-function plot_μ_scatter_selfFrame_window(df::DataFrame, df_track::DataFrame, window::Vector{Vector{Float64}}, file::String)
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=5)+data(df_track)*visual(markersize=0.5,color="red"))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Scatter plot corrected-μ space in stream's self-frame."""
-function plot_μ_corr_scatter_selfFrame(df::DataFrame, df_track::DataFrame, file::String)
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=1, color=(:black, 1))+data(df_track)*visual(markersize=0.5,color="red"))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt)
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Scatter plot corrected-μ space in stream's self-frame inside a window."""
-function plot_μ_corr_scatter_selfFrame_window(df::DataFrame, df_track::DataFrame, file::String,  window::Vector{Vector{Float64}})
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=10, color=(:black, 0.5))+data(df_track)*visual(markersize=0.5,color="red"))*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Histogram plot corrected-μ space in stream's self-frame inside a window."""
-function plot_μ_corr_histo_selfFrame_window(df::DataFrame, df_track::DataFrame, file::String,  window::Vector{Vector{Float64}})
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*AoG.density()+data(df_track)*visual(markersize=0.5,color="red"))*mapping(:μ₁cosϕ₂_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt, axis=(;limits=((window[1][1], window[1][2]),(window[2][1],window[2][2]))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-"""Scatter plot corrected-μ track in stream's self-frame."""
-function plot_μ_corr_track_selfFrame(df_track::DataFrame, file::String)
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df_track)*visual(markersize=2,color="red")*mapping(:μ₁_corr =>L"$μ_1$ [mas/yr]", :μ₂_corr=>L"$μ_2$ [mas/yr]")
-    ag = draw!(fig, plt)
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
-
-
