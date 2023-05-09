@@ -419,8 +419,8 @@ function plot_scatter_on_μ_corr_plane_self_frame(df::DataFrame, file::String)
     return nothing
 end
 
-"""Scatter plot reflex-corrected μ-track in stream's self-frame."""
-function plot_μ_corr_self_frame_only_track(df_track::DataFrame, file::String)
+"""Track plot on reflex-corrected μ plane in stream's self-frame."""
+function plot_track_on_μ_corr_plane_self_frame(df_track::DataFrame, file::String)
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
@@ -432,13 +432,26 @@ function plot_μ_corr_self_frame_only_track(df_track::DataFrame, file::String)
     return nothing
 end
 
-"""Plot CMD histogram."""
-function plot_cmd_histo(df::DataFrame, file::String)
+"""Plot CMD histogram with or without isochrone."""
+function plot_histog_cmd(df::DataFrame, df_iso::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")*histogram(bins=100)
+    plt_iso = data(df_iso)*mapping(:color=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="red")
+    plt_iso_bord = data(df_iso)*mapping([:left,:right].=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="black")
+    ag = draw!(fig, plt+plt_iso+plt_iso_bord, axis=(;yreversed=true))#, limits=((0,1.5),(14,22))))
+    colorbar!(fig[1,2], ag)
+    electrondisplay(fig)
+    save(file, fig, pt_per_unit=1)
+    return nothing
+end
+
+function plot_histog_cmd(df::DataFrame, file::String)
     size_inches = (5*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")*
-                                    histogram(bins=300)
+    plt = data(df)*histogram(bins=300)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")
     ag = draw!(fig, plt, axis=(;yreversed=true))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
@@ -447,7 +460,7 @@ function plot_cmd_histo(df::DataFrame, file::String)
 end
 
 """Plot single isochrone."""
-function plot_isochrone(df::DataFrame, file::String)
+function plot_isochrone_cmd(df::DataFrame, file::String)
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
@@ -458,17 +471,5 @@ function plot_isochrone(df::DataFrame, file::String)
     return nothing
 end
 
-"""Plot isochone plus data."""
-function plot_isochrone_data(df_iso::DataFrame, df_s::DataFrame, file::String)
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt_s = data(df_s)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")*histogram(bins=100)
-    plt_iso = data(df_iso)*mapping(:color=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="red")
-    plt_iso_bord = data(df_iso)*mapping([:left,:right].=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="black")
-    ag = draw!(fig, plt_s+plt_iso+plt_iso_bord, axis=(;yreversed=true))#, limits=((0,1.5),(14,22))))
-    colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
-    save(file, fig, pt_per_unit=1)
-    return nothing
-end
+
+

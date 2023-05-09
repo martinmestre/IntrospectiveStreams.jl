@@ -17,7 +17,7 @@ module IntrospectiveStreams
         import pyia
     end
 
-    export  extinction_corr,
+    export  correct_extinction_Gaia,
             curation!,
             load_stream_track,
             get_isochrone,
@@ -44,12 +44,13 @@ module IntrospectiveStreams
             plot_histog_on_μ_plane_self_frame,
             plot_scatter_on_μ_plane_self_frame,
             plot_scatter_on_μ_corr_plane_self_frame,
-            plot_μ_corr_self_frame_only_track
-            # plot_cmd_histo,
-            # plot_isochrone,
-            # plot_isochrone_data
+            plot_track_on_μ_corr_plane_self_frame,
+            plot_histog_cmd,
+            plot_isochrone_cmd
+
+    export basic_pipeline
 
     include("data_methods.jl")
     include("plot_methods.jl")
-
+    include("pipelines.jl")
 end
