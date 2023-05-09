@@ -3,9 +3,10 @@ module IntrospectiveStreams
     using DataFrames, DataFramesMeta
     using PolygonOps
     using StaticArrays
-    using PythonCall
     using CairoMakie, AlgebraOfGraphics
     using ElectronDisplay
+    using Reexport
+    @reexport using PythonCall
 
     @py begin
         import galstreams
@@ -48,9 +49,12 @@ module IntrospectiveStreams
             plot_histog_cmd,
             plot_isochrone_cmd
 
-    export basic_pipeline
+    export correct_extinction_Gaia_loop,
+           basic_pipeline
 
     include("data_methods.jl")
     include("plot_methods.jl")
     include("pipelines.jl")
+
+
 end

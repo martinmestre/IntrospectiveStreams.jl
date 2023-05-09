@@ -11,6 +11,7 @@ DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
 ElectronDisplay = "d872a56f-244b-5cc9-b574-2017b5b909a8"
 PolygonOps = "647866c9-e3ac-4575-94e7-e3d426903924"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]

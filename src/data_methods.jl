@@ -1,7 +1,8 @@
 """Extinction correction for Gaia magnitudes from Gaia dataset."""
 function correct_extinction_Gaia(file_orig::String, file_corr::String)::Nothing
-    println("file = ", file_corr)
+    println(file_orig)
     data = at.Table.read(file_orig)
+    println("done")
     g = pyia.GaiaData(data)
     bp0 = g.get_BP0()
     rp0 = g.get_RP0()
