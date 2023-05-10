@@ -22,6 +22,7 @@ DataFramesMeta = "0.14"
 ElectronDisplay = "1"
 PolygonOps = "0.1"
 PythonCall = "0.9"
+Reexport = "1"
 StaticArrays = "1"
 julia = "1"
 
