@@ -5,18 +5,26 @@ module IntrospectiveStreams
     using StaticArrays
     using CairoMakie, AlgebraOfGraphics
     using ElectronDisplay
-    using Reexport
-    @reexport using PythonCall
+    using PythonCall
 
-    @py begin
-        import galstreams
-        import astropy.coordinates as coord
-        import astropy.units as u
-        import astropy.table as at
-        import ezmist
-        import gala.coordinates as galacoord
-        import pyia
+    const coor = PythonCall.pynew()
+    const u = PythonCall.pynew()
+    const at = PythonCall.pynew()
+    const galstreams = PythonCall.pynew()
+    const galacoord = PythonCall.pynew()
+    const pyia = PythonCall.pynew()
+    const ezmist = PythonCall.pynew()
+
+    function __init__()
+        PythonCall.pycopy!(coor,pyimport("astropy.coordinates"))
+        PythonCall.pycopy!(u,pyimport("astropy.units"))
+        PythonCall.pycopy!(at,pyimport("astropy.table"))
+        PythonCall.pycopy!(galstreams,pyimport("galstreams"))
+        PythonCall.pycopy!(galacoord,pyimport("gala.coordinates"))
+        PythonCall.pycopy!(pyia,pyimport("pyia"))
+        PythonCall.pycopy!(ezmist,pyimport("ezmist"))
     end
+
 
     export  correct_extinction_Gaia,
             curation!,

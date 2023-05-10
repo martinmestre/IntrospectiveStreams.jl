@@ -1,6 +1,6 @@
 """Extinction correction for Gaia magnitudes from Gaia dataset."""
 function correct_extinction_Gaia(file_orig::String, file_corr::String)::Nothing
-    println(file_orig)
+    println(file_orig, file_corr)
     data = at.Table.read(file_orig)
     println("done")
     g = pyia.GaiaData(data)
@@ -12,6 +12,11 @@ function correct_extinction_Gaia(file_orig::String, file_corr::String)::Nothing
     data["g"] = g0
     data.write(file_corr, format="fits", overwrite=true)
     return nothing
+end
+
+function mybar(file_orig,file_corr)
+    data = at.Table.read(file_orig)
+    return file_corr
 end
 
 """Data curation of Gaia dataset."""
