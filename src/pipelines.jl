@@ -7,18 +7,16 @@ function correct_extinction_Gaia_loop(name_s::Vector{String})
         file_corr = "$(host_dir)/GaiaDR3-$(name_s[i])-all_extincorr.fits"
         correct_extinction_Gaia(file_orig, file_corr)
     end
+    GC.gc()
 end
 
 """Basic filtering with μ and cmd cuts."""
 function basic_pipeline(name_s, name_t)
-    # """Performing extinction correction. Only once for each stream."""
-    # file_orig = "data/$(name_s)/DR3/original/GaiaDR3-$(name_t)-all.fits"
-    # file_corr = "data/$(name_s)/DR3/corrected/corr_GaiaDR3-$(name_t)-all.fits"
-    # dm.extinction_correction(file_orig, file_corr)
-    # GC.gc()
+
 
     """Opening the file with extinction corrected magnitudes."""
-    file_corr = "data/$(name_s)/DR3/corrected/corr_GaiaDR3-$(name_t)-all.fits"
+    host_dir = "/home/mmestre/casa/work/data/cats"
+    file_corr = "$(host_dir)/GaiaDR3-$(name_s)-all_extincorr.fits"
     f = FITS(file_corr)
     df_stream = DataFrame(f[2])
     println("Fields: ", names(df_stream))
@@ -30,9 +28,6 @@ function basic_pipeline(name_s, name_t)
     dm.mask_gc!(df_stream, df_gc)
 
     """Load galstreams data."""
-    # name_t = "GD-1-I21"
-    # name_t = "Fjorm-I21"
-    name_t = "M68-P19"
     df_track, self_frame = dm.load_stream_track(name_t)
     D_interp = linear_interpolation(df_track.ϕ₁, df_track.D)  # only activate if needed.
     # %%
