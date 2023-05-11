@@ -14,9 +14,13 @@ function correct_extinction_Gaia(file_orig::String, file_corr::String)::Nothing
     return nothing
 end
 
-function mybar(file_orig,file_corr)
-    data = at.Table.read(file_orig)
-    return file_corr
+"""Performing extinction correction for a given list of streams."""
+function correct_extinction_Gaia_loop(name_s::Vector{String}, file_orig::Vector{String}, file_corr::Vector{String})
+    for i in 1:length(name_s)
+        println("Correcting extinction of stream $(name_s[i])")
+        correct_extinction_Gaia(file_orig[i], file_corr[i])
+    end
+    GC.gc()
 end
 
 """Data curation of Gaia dataset."""

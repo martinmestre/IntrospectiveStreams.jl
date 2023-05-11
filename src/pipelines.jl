@@ -1,15 +1,3 @@
-"""Performing extinction correction for a given list of streams."""
-function correct_extinction_Gaia_loop(name_s::Vector{String})
-    for i in 1:length(name_s)
-        println("Correcting extinction of stream $(name_s[i])")
-        host_dir = "/home/mmestre/casa/work/data/cats"
-        file_orig = "$(host_dir)/GaiaDR3-$(name_s[i])-all.fits"
-        file_corr = "$(host_dir)/GaiaDR3-$(name_s[i])-all_extincorr.fits"
-        correct_extinction_Gaia(file_orig, file_corr)
-    end
-    GC.gc()
-end
-
 """Basic filtering with μ and cmd cuts."""
 function basic_pipeline(name_s, name_t)
 

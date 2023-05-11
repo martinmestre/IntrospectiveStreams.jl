@@ -27,6 +27,7 @@ module IntrospectiveStreams
 
 
     export  correct_extinction_Gaia,
+            correct_extinction_Gaia_loop,
             curation!,
             load_stream_track,
             get_isochrone,
@@ -57,11 +58,14 @@ module IntrospectiveStreams
             plot_histog_cmd,
             plot_isochrone_cmd
 
-    export correct_extinction_Gaia_loop,
-           basic_pipeline
+    export name_files_Gaia_cats,
+           name_files_photometry_cats
+
+    export basic_pipeline
 
     include("data_methods.jl")
     include("plot_methods.jl")
+    include("naming_files.jl")
     include("pipelines.jl")
 
 
