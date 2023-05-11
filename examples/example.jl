@@ -1,4 +1,3 @@
-"""Example about using this package."""
 using Pkg
 Pkg.activate(".")
 using IntrospectiveStreams

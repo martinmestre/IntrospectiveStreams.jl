@@ -59,7 +59,8 @@ module IntrospectiveStreams
             plot_isochrone_cmd
 
     export name_files_Gaia_cats,
-           name_files_photometry_cats
+           name_files_photometry_cats,
+           name_files_all_cats
 
     export basic_pipeline
 
