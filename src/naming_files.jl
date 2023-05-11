@@ -20,7 +20,7 @@ function name_files_photometry_cats(name_s::String)
 end
 
 """File names wrapper for all of them."""
-function name_files_all(name_s::Vector{String})
+function name_files_all_cats(name_s::Vector{String})
     file_orig = Vector{Union{Nothing, String}}(nothing, length(name_s))
     file_corr = Vector{Union{Nothing, String}}(nothing, length(name_s))
     file_phot = Vector{Union{Nothing, String}}(nothing, length(name_s))
