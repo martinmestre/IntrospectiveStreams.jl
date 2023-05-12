@@ -58,11 +58,13 @@ module IntrospectiveStreams
             plot_histog_cmd,
             plot_isochrone_cmd
 
-    export name_files_Gaia_cats,
-           name_files_photometry_cats,
-           name_files_all_cats
+    export name_files_Gaia,
+           name_files_photometry,
+           name_files_isochrone,
+           name_files_all
 
-    export basic_pipeline
+    export basic_pipeline,
+           basic_pipeline_loop
 
     include("data_methods.jl")
     include("plot_methods.jl")

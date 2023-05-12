@@ -1,3 +1,24 @@
+"""Load dataframes from files."""
+function get_dataframes(file_corr, file_phot, file_gc, file_iso, age, metal, filter)::Vector{Union{DataFrame,Nothing}}
+    f = FITS(file_corr)
+    df_astrom = DataFrame(f[2])
+    if isnothing(file_phot)
+        df_phot = nothing
+    else
+        f = FITS(file_phot)
+        df_phot = DataFrame(f[2])
+    end
+    df_gc  = DataFrame(CSV.File(file_gc, delim=" ", ignorerepeated=true))
+    if isfile(file_iso)
+        df_iso = DataFrame(CSV.File(iso_file))
+    else
+        df_iso = get_isochrone(age, metal, filter, "linear")
+        CSV.write(iso_file, df_iso)
+    end
+    array_df = [df_astrom, df_phot, df_gc, df_iso]
+    return array_df
+end
+
 """Extinction correction for Gaia magnitudes from Gaia dataset."""
 function correct_extinction_Gaia(file_orig::String, file_corr::String)::Nothing
     println(file_orig, file_corr)
@@ -35,12 +56,12 @@ function curation!(df::DataFrame, tol::Vector{Number})::Nothing
 end
 
 """CMD filtering (Mutating)."""
-function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame)::Nothing
+function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, σ_c::Number)::Nothing
     phase_mask = 0 .<= df_iso.phase .< 3
     df_iso = df_iso[phase_mask,:]
     df_iso.color = df_iso.Gaia_BP_EDR3 - df_iso.Gaia_RP_EDR3
-    df_iso.left = df_iso.color .- 0.1
-    df_iso.right = df_iso.color .+ 0.1
+    df_iso.left = df_iso.color .- σ_c
+    df_iso.right = df_iso.color .+ σ_c
     pol_x = vcat(df_iso.left, reverse(df_iso.right), df_iso.left[1])
     temp = df_iso.Gaia_G_EDR3
     pol_y = vcat(temp, reverse(temp), temp[1])
@@ -89,7 +110,7 @@ function get_isochrone(age::Float64, metal::Float64,
 end
 
 """Compute stream stars' self coordinates using Galstreams'track and add to dataframe."""
-function compute_in_selfCoords!(df::DataFrame, frame::Py)::Nothing
+function compute_in_self_coords!(df::DataFrame, frame::Py)::Nothing
     sky_coords = coord.SkyCoord(ra=Py(df.ra)*u.deg, dec=Py(df.dec)*u.deg, pm_ra_cosdec=Py(df.pmra)*u.mas/u.yr, pm_dec=Py(df.pmdec)*u.mas/u.yr, frame="icrs")
     self_coords = sky_coords.transform_to(frame)
     df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
@@ -97,7 +118,7 @@ function compute_in_selfCoords!(df::DataFrame, frame::Py)::Nothing
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
     df.μ₁ = @. df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    df.D = 1.0./df.parallax
+    df.D_Π = 1.0./df.parallax
     return nothing
 end
 
@@ -111,7 +132,7 @@ function compute_in_self_coords!(df::DataFrame)::Py
     df.μ₁cosϕ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi1_cosphi2.value)
     df.μ₁ = @. df.μ₁cosϕ₂/cos(df.ϕ₂*π/180.0)
     df.μ₂ = pyconvert(Vector{Float64}, self_coords.pm_phi2.value)
-    df.D = 1.0./df.parallax
+    df.D_Π = 1.0./df.parallax
     return kop_frame
 end
 
