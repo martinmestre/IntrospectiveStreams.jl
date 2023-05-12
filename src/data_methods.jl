@@ -117,7 +117,7 @@ end
 
 
 "Mask out field globular clusters."
-function mask_gc!(df_stream, df_gc)
+function mask_gc!(df_stream::DataFrame, df_gc::DataFrame)
     for i in 1:nrow(df_gc)
         Δra = df_stream.ra.-df_gc.ra[i]
         Δdec = df_stream.dec.-df_gc.dec[i]
