@@ -69,5 +69,4 @@ module IntrospectiveStreams
     include("naming_files.jl")
     include("pipelines.jl")
 
-
 end
