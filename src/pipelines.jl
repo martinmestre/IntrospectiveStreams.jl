@@ -23,33 +23,20 @@ function basic_pipeline(array_df, file_filt, name_t, tol_curation, col_bounds, �
 
     # CMD filtering.
     df_astrom.Gaia_color = df_stream.bp - df_stream.rp
-    df_iso.Gaia_color = df_iso.bp - df_iso.rp
     @subset!(df_astrom, col_bounds[1] .< :Gaia_color .< col_bounds[2])
     filter_cmd!(df_astrom, df_iso, σ_c)
 
-
     # Spatial filtering.
     @subset!(df_astrom, :parallax .< 1.)
+    df_filt = filter_with_track(df_stream, df_track, :μ₁, σ)
+    filter_with_track!(df_filt, df_track, :μ₂, σ)
 
-    S = :μ₁
-    df_filt = filter_with_track(df_stream, df_track, S, σ)
-
-    S₂ = :μ₂
-    filter_with_track!(df_filt, df_track, S₂, σ)
-
-    S₃ = :ϕ₂
-    df_filt = filter_with_track(df_stream, df_track, S₃, σ)
-
-
-    box = [[3.,12.],[-1,0]]
-    df_box = filter_box_μ(df_stream, box)
-
-    # Saving filtered stream dataset.
+     # Saving filtered stream dataset.
     CSV.write(file_filt, df_filt)
 
 
     """Do some plots."""
-    pm.plot_sky_scatter_selfFrame(df_box, "plots/dr2.pdf", df_track)
+    pm.plot_sky_scatter_selfFrame(df_box, "plots/scatter.pdf", df_track)
     pm.plot_sky_scatter_μ_arrows_selfFrame(df_filt[begin:1:end,:], "plots/sky_scatter_frame_μ_$(name_s)_filt.png", df_track)
     pm.plot_sky_scatter_μ_arrows_corr_selfFrame(df_filt[begin:1:end,:], "plots/sky_scatter_frame_μ_coor_$(name_s)_filt.png", df_track )
 

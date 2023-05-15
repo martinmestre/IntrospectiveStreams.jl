@@ -31,7 +31,7 @@ function name_files_isochrone(name_s::String, age::Number, metal::Number)
 end
 
 """File names wrapper for all of them."""
-function name_files_all(name_s::Vector{String}, ages::Vector{Number}, metals::Vector{Number})
+function name_files_all(name_s::Vector{String}, ages::Vector{<:Number}, metals::Vector{<:Number})
     file_orig = Vector{Union{Nothing, String}}(nothing, length(name_s))
     file_corr = Vector{Union{Nothing, String}}(nothing, length(name_s))
     file_phot = Vector{Union{Nothing, String}}(nothing, length(name_s))
@@ -39,7 +39,7 @@ function name_files_all(name_s::Vector{String}, ages::Vector{Number}, metals::Ve
     file_filt = Vector{Union{Nothing, String}}(nothing, length(name_s))
 
     for i in eachindex(name_s)
-        v = name_files_Gaia(name_s[i]) # v might have more than 2 components.
+        v = name_files_Gaia(name_s[i]) # v might have more than 3 component.
         file_orig[i] = v[1]
         file_corr[i] = v[2]
         file_filt[i] = v[3]
