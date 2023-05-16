@@ -10,10 +10,10 @@ function get_dataframes(file_corr, file_phot, file_gc, file_iso, age, metal, fil
     end
     df_gc  = DataFrame(CSV.File(file_gc, delim=" ", ignorerepeated=true))
     if isfile(file_iso)
-        df_iso = DataFrame(CSV.File(iso_file))
+        df_iso = DataFrame(CSV.File(file_iso))
     else
         df_iso = get_isochrone(age, metal, filter, "linear")
-        CSV.write(iso_file, df_iso)
+        CSV.write(file_iso, df_iso)
     end
     array_df = [df_astrom, df_phot, df_gc, df_iso]
     return array_df
@@ -45,7 +45,7 @@ function correct_extinction_Gaia_loop(name_s::Vector{String}, file_orig::Vector{
 end
 
 """Data curation of Gaia dataset."""
-function curation!(df::DataFrame, tol::Vector{Number})::Nothing
+function curation!(df::DataFrame, tol::Vector{<:Number})::Nothing
     df.pmra_error_rel = df.pmra_error./df.pmra
     @subset!(df, (:pmra_error_rel .< tol[1]))
     df.pmdec_error_rel = df.pmdec_error./df.pmdec
@@ -100,7 +100,7 @@ function load_stream_track(name_t::String)
 end
 
 """Download stellar isochrones"""
-function get_isochrone(age::Float64, metal::Float64,
+function get_isochrone(age::Number, metal::Number,
                            phot::String, age_scale::String)::DataFrame
     println("Note that MIST uses [FeH] (not Z abundance).")
     df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
@@ -179,17 +179,17 @@ function filter_along_ϕ₁(df_stars::DataFrame, df_track::DataFrame, S::Symbol,
         q🌠 = df_stars.ϕ₂
         q_track = df_track.ϕ₂
     elseif S == :D
-        q🌠 = 1.0 ./ df_stars.parallax
+        q🌠 = df_stars.D
         q_track = df_track.D
-    elseif S == :μ₁cosϕ₂_corr
-        q🌠 = df_stars.μ₁cosϕ₂_corr
-        q_track = df_track.μ₁cosϕ₂_corr
-    elseif S == :μ₁_corr
-        q🌠 = df_stars.μ₁_corr
-        q_track = df_track.μ₁_corr
-    elseif S == :μ₂_corr
-        q🌠 = df_stars.μ₂_corr
-        q_track = df_track.μ₂_corr
+    elseif S == :μ₁cosϕ₂
+        q🌠 = df_stars.μ₁cosϕ₂
+        q_track = df_track.μ₁cosϕ₂
+    elseif S == :μ₁
+        q🌠 = df_stars.μ₁
+        q_track = df_track.μ₁
+    elseif S == :μ₂
+        q🌠 = df_stars.μ₂
+        q_track = df_track.μ₂
     elseif S == :Vᵣ
         q🌠 = df_stars.radial_velocity
         q_track = df_track.Vᵣ
@@ -210,21 +210,22 @@ function filter_along_ϕ₁!(df_stars::DataFrame, df_track::DataFrame, S::Symbol
         q🌠 = df_stars.ϕ₂
         q_track = df_track.ϕ₂
     elseif S == :D
-        q🌠 = 1.0 ./ df_stars.parallax
+        q🌠 = df_stars.D
         q_track = df_track.D
-    elseif S == :μ₁cosϕ₂_corr
-        q🌠 = df_stars.μ₁cosϕ₂_corr
-        q_track = df_track.μ₁cosϕ₂_corr
-    elseif S == :μ₁_corr
-        q🌠 = df_stars.μ₁_corr
-        q_track = df_track.μ₁_corr
-    elseif S == :μ₂_corr
-        q🌠 = df_stars.μ₂_corr
-        q_track = df_track.μ₂_corr
+    elseif S == :μ₁cosϕ₂
+        q🌠 = df_stars.μ₁cosϕ₂
+        q_track = df_track.μ₁cosϕ₂
+    elseif S == :μ₁
+        q🌠 = df_stars.μ₁
+        q_track = df_track.μ₁
+    elseif S == :μ₂
+        q🌠 = df_stars.μ₂
+        q_track = df_track.μ₂
     elseif S == :Vᵣ
         q🌠 = df_stars.radial_velocity
         q_track = df_track.Vᵣ
     end
+    println("q_track=$(q_track)")
     up = q_track .+ σ
     down =  q_track .- σ
     poly_ϕ₁ = vcat(df_track.ϕ₁, reverse(df_track.ϕ₁), df_track.ϕ₁[1])
@@ -244,8 +245,8 @@ end
 
 """Filter with a box in PM space."""
 function filter_box_on_μ_plane!(df::DataFrame, box::Vector{Vector{Float64}})::Nothing
-    @subset!(df, box[1][1] .< :μ₁_corr .< box[1][2])
-    @subset!(df_box, box[2][1] .< :μ₂_corr .< box[2][2])
+    @subset!(df, box[1][1] .< :μ₁ .< box[1][2])
+    @subset!(df, box[2][1] .< :μ₂ .< box[2][2])
     return nothing
 end
 

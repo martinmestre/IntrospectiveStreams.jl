@@ -3,11 +3,14 @@ module IntrospectiveStreams
     using DataFrames, DataFramesMeta
     using PolygonOps
     using StaticArrays
+    using FITSIO
+    using CSV
+    using Interpolations
     using CairoMakie, AlgebraOfGraphics
     using ElectronDisplay
     using PythonCall
 
-    const coor = PythonCall.pynew()
+    const coord = PythonCall.pynew()
     const u = PythonCall.pynew()
     const at = PythonCall.pynew()
     const galstreams = PythonCall.pynew()
@@ -16,7 +19,7 @@ module IntrospectiveStreams
     const ezmist = PythonCall.pynew()
 
     function __init__()
-        PythonCall.pycopy!(coor,pyimport("astropy.coordinates"))
+        PythonCall.pycopy!(coord,pyimport("astropy.coordinates"))
         PythonCall.pycopy!(u,pyimport("astropy.units"))
         PythonCall.pycopy!(at,pyimport("astropy.table"))
         PythonCall.pycopy!(galstreams,pyimport("galstreams"))
@@ -61,7 +64,8 @@ module IntrospectiveStreams
     export name_files_Gaia,
            name_files_photometry,
            name_files_isochrone,
-           name_files_all
+           name_files_all,
+           file_gc
 
     export basic_pipeline,
            basic_pipeline_loop

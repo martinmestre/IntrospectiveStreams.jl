@@ -104,7 +104,7 @@ function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, wind
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
@@ -116,7 +116,7 @@ function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, file
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt)
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
@@ -128,7 +128,7 @@ function plot_scatter_on_sky_self_frame(df::DataFrame, window::Tuple{Tuple{Numbe
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
@@ -140,7 +140,7 @@ function plot_scatter_on_sky_self_frame(df::DataFrame, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*visual(markersize=1, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
+    plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt)
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
@@ -326,7 +326,7 @@ function plot_scatter_on_μ_plane_self_frame(df::DataFrame, df_track::DataFrame,
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
+    plt = (data(df)*visual(markersize=1.5, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:μ₁ =>L"$μ_1$ [mas/yr]", :μ₂=>L"$μ_2$ [mas/yr]")
     ag = draw!(fig, plt, axis=(;limits=window))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
