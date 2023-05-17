@@ -70,9 +70,12 @@ module IntrospectiveStreams
     export basic_pipeline,
            basic_pipeline_loop
 
+    export example
+
     include("data_methods.jl")
     include("plot_methods.jl")
     include("naming_files.jl")
     include("pipelines.jl")
+    include("../examples/example.jl")
 
 end
