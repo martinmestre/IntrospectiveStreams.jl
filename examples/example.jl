@@ -17,9 +17,8 @@ function example()
     σ = 2
 
     file_orig, file_corr, file_phot, file_iso, file_filt, file_plot  = name_files_all(name_s, age, metal)
-
     # correct_extinction_Gaia_loop(name_s, file_orig, file_corr)
-    basic_pipeline_loop(name_t, file_corr, file_phot, file_gc, file_iso, file_filt, file_plot, age, metal, filters, tol_curation, col_bounds, σ_c, σ)
+    basic_pipeline_loop(name_t, file_corr, file_phot, file_gc, file_iso, file_filt, file_plot, age, metal,  filters, tol_curation, col_bounds, σ_c, σ)
 
     println("Tasks performed.")
 end
