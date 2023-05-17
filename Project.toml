@@ -18,6 +18,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 AlgebraOfGraphics = "0.6"
+CSV = "0.10"
 CairoMakie = "0.10"
 DataFrames = "1"
 DataFramesMeta = "0.14"
