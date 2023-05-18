@@ -57,7 +57,7 @@ module IntrospectiveStreams
             plot_histog_on_μ_plane_self_frame,
             plot_scatter_on_μ_plane_self_frame,
             plot_scatter_on_μ_corr_plane_self_frame,
-            plot_track_on_μ_corr_plane_self_frame,
+            plot_track_on_μ_rc_plane_self_frame,
             plot_histog_cmd,
             plot_isochrone_cmd
 

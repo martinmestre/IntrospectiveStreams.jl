@@ -223,7 +223,6 @@ function filter_along_ϕ₁!(df_stars::DataFrame, df_track::DataFrame, S::Symbol
         q🌠 = df_stars.radial_velocity
         q_track = df_track.Vᵣ
     end
-    println("q_track=$(q_track)")
     up = q_track .+ σ
     down =  q_track .- σ
     poly_ϕ₁ = vcat(df_track.ϕ₁, reverse(df_track.ϕ₁), df_track.ϕ₁[1])
@@ -262,10 +261,10 @@ function reflex_correct!(df::DataFrame, frame::Py)::Nothing
     vsun = coord.CartesianDifferential(Py([11.1, 220.0+12.24, 7.25])*u.km/u.s)
     rsun = 8.122*u.kpc
     gc_frame = coord.Galactocentric(galcen_distance=rsun, galcen_v_sun=vsun, z_sun=0*u.pc)
-    sky_coords_corr = galacoord.reflex_correct(sky_coords, gc_frame)
-    df.μ₁cosϕ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi1_cosphi2.value)
-    df.μ₁_corr = @. df.μ₁cosϕ₂_corr/cos(df.ϕ₂*π/180.0)
-    df.μ₂_corr = pyconvert(Vector{Float64}, sky_coords_corr.pm_phi2.value)
+    sky_coords_rc = galacoord.reflex_correct(sky_coords, gc_frame)
+    df.μ₁cosϕ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi1_cosphi2.value)
+    df.μ₁_rc = @. df.μ₁cosϕ₂_rc/cos(df.ϕ₂*π/180.0)
+    df.μ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi2.value)
     return nothing
 end
 
