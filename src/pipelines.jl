@@ -39,7 +39,7 @@ function basic_pipeline(array_df, file_filt, file_plot, name_t,
     # CSV.write(file_filt, df_filt)
 
     """Do some plots."""
-    window = ((-15,-10),(-5,0))
+    window = ((-15,15),(-10,10))
     plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, window, file_plot)
     plot_scatter_on_sky_self_frame(df_astrom, df_track, file_plot)
 end
