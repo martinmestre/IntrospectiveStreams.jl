@@ -7,7 +7,7 @@ function basic_pipeline(array_df, file_filt, file_plot, name_t,
     df_iso  = array_df[4]
 
     # Curation.
-    # curation!(df_astrom, tol_curation)
+    curation!(df_astrom, tol_curation)
 
     # Remove known globular clusters.
     rename!(df_gc,[:RA, :DEC] .=> [:ra, :dec])
@@ -39,8 +39,8 @@ function basic_pipeline(array_df, file_filt, file_plot, name_t,
     # CSV.write(file_filt, df_filt)
 
     """Do some plots."""
-    window = ((-15,15),(-10,10))
-    plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, window, file_plot)
+    # window = ((-15,15),(-10,10))
+    plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, file_plot)
     plot_scatter_on_sky_self_frame(df_astrom, df_track, file_plot)
 end
 
