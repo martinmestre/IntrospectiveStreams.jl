@@ -100,48 +100,48 @@ function plot_histog_on_sky_self_frame(df::DataFrame, file::String)
     return nothing
 end
 """Scatter plot on sky using the stream's frame with and without track."""
-function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt, axis=(;limits=window))
+    ag = draw!(fig, plt, axis=(;limits=window,title=name_s))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-function plot_scatter_on_sky_self_frame(df::DataFrame, df_track::DataFrame, file::String)
+function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track::DataFrame, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt)
+    ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-function plot_scatter_on_sky_self_frame(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt, axis=(;limits=window))
+    ag = draw!(fig, plt, axis=(;limits=window, title=name_s))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
 
-function plot_scatter_on_sky_self_frame(df::DataFrame, file::String)
+function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
-    ag = draw!(fig, plt)
+    ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
     electrondisplay(fig)
     save(file, fig, pt_per_unit=1)

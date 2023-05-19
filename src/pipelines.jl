@@ -1,5 +1,5 @@
 """Basic filtering with μ and cmd cuts."""
-function basic_pipeline(array_df, file_filt, file_plot, name_t,
+function basic_pipeline(name_s, array_df, file_filt, file_plot, name_t,
     tol_curation, col_bounds, box_μ, σ_c, σ)
     df_astrom = array_df[1]
     df_phot = array_df[2]
@@ -7,7 +7,7 @@ function basic_pipeline(array_df, file_filt, file_plot, name_t,
     df_iso  = array_df[4]
 
     # Curation.
-    curation!(df_astrom, tol_curation)
+    # curation!(df_astrom, tol_curation)
 
     # Remove known globular clusters.
     rename!(df_gc,[:RA, :DEC] .=> [:ra, :dec])
@@ -36,20 +36,21 @@ function basic_pipeline(array_df, file_filt, file_plot, name_t,
     filter_cmd!(df_astrom, df_iso, σ_c)
 
     # Saving filtered stream dataset.
-    # CSV.write(file_filt, df_filt)
+    CSV.write(file_filt, df_astrom)
 
     """Do some plots."""
     # window = ((-15,15),(-10,10))
-    plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, file_plot)
-    plot_scatter_on_sky_self_frame(df_astrom, df_track, file_plot)
+    # plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, file_plot)
+    plot_scatter_on_sky_self_frame(name_s, df_astrom, file_plot)
+    GC.gc()
 end
 
 """Processing all the pipelines in sequence."""
-function basic_pipeline_loop(name_t, file_corr, file_phot, file_gc, file_iso, file_filt, file_plot,
+function basic_pipeline_loop(name_s, name_t, file_corr, file_phot, file_gc, file_iso, file_filt, file_plot,
     age, metal, filter, tol_curation, col_bounds, box_μ, σ_c, σ)
     for i in eachindex(name_t)
         array_df = get_dataframes(file_corr[i], file_phot[i], file_gc, file_iso[i], age[i], metal[i], filter[i])
-        basic_pipeline(array_df, file_filt[i], file_plot[i], name_t[i], tol_curation, col_bounds,
+        basic_pipeline(name_s[i], array_df, file_filt[i], file_plot[i], name_t[i], tol_curation, col_bounds,
         box_μ, σ_c, σ)
     end
     GC.gc()
