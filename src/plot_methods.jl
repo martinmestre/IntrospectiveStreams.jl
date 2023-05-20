@@ -107,7 +107,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track:
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window,title=name_s))
     colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
+    Base.display(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
@@ -119,7 +119,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track:
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
+    Base.display(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
@@ -131,7 +131,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, window::T
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window, title=name_s))
     colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
+    Base.display(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end
@@ -145,7 +145,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, file::Str
     colorbar!(fig[1,2], ag)
     Base.display(fig)
     save(file, fig, pt_per_unit=1)
-    return nothing
+    return display(fig)
 end
 
 """Scatter plot on sky with PM (μ) arrows using stream's frame."""

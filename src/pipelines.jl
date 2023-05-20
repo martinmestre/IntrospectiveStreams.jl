@@ -6,6 +6,7 @@ function basic_pipeline(name_s, array_df, file_filt, file_plot, name_t,
     df_gc   = array_df[3]
     df_iso  = array_df[4]
 
+    println("Now in stream $(name_s)")
     # Curation.
     # curation!(df_astrom, tol_curation)
 
