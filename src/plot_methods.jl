@@ -143,7 +143,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, file::Str
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
-    electrondisplay(fig)
+    Base.display(fig)
     save(file, fig, pt_per_unit=1)
     return nothing
 end

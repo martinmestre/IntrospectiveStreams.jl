@@ -33,7 +33,7 @@ end
 """Plot file names."""
 function name_files_plots(name_s::String)
     host_dir = "$(base_dir)/cats/plots"
-    file_scatter = "$(host_dir)/scatter_sky_self_frame_$(name_s).pdf"
+    file_scatter = "$(host_dir)/scatter_sky_self_frame_$(name_s).jpg"
     return [file_scatter]
 end
 
