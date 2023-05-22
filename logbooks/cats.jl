@@ -125,9 +125,9 @@ figs_t[6]
 # ╟─b6b10200-f743-479d-8aee-668d6938adc3
 # ╠═ffbea6cf-7ddd-4449-abe1-52e309c72ca4
 # ╟─e60d7cfd-75fd-411e-8903-6ba689cdf62c
-# ╠═b9fc214d-480a-4123-96c6-ac02ffab9d54
-# ╠═d6f2db68-b4cf-4ef0-a571-f83fb058e4ce
-# ╠═b472766e-d3db-4231-9653-2f16a9cc7c04
-# ╠═eafa11bd-09c9-4d24-a7d2-d87e07aefef9
-# ╠═1b249ea2-1109-4bdf-9c38-dc8dc8a85054
-# ╠═16f8ab26-24ed-40a3-92c7-df8adc5d8464
+# ╟─b9fc214d-480a-4123-96c6-ac02ffab9d54
+# ╟─d6f2db68-b4cf-4ef0-a571-f83fb058e4ce
+# ╟─b472766e-d3db-4231-9653-2f16a9cc7c04
+# ╟─eafa11bd-09c9-4d24-a7d2-d87e07aefef9
+# ╟─1b249ea2-1109-4bdf-9c38-dc8dc8a85054
+# ╟─16f8ab26-24ed-40a3-92c7-df8adc5d8464
