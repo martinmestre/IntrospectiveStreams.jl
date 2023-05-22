@@ -22,10 +22,10 @@ Makie.inline!(true)
 # ╔═╡ 5c7cee94-5226-4376-853d-3f10ba846054
 md"""## Searching the streams at first order
 Here we show the result of making approximate cuts in proper motion (PM) and color-magnitude (CM) for the five streams using Gaia DR3. We also show the case of GD-1 with DR2 for comparison. 
-The PM cut is guided by the Galstream track. The filtering is done by keeping only stars that satify:
-$\forall \phi_1: |\mu_1^{(t)}-\mu_1(\phi_1^{(t)}|<0.7$ and
-$\forall \phi_1: |\mu_2^{(t)}-\mu_2(\phi_1^{(t)}|<0.7$
-where $\mu_{1,2}$ are the PMs not corrected by the solar reflex-motion.
+The PM cut is guided by the Galstream track: $\mu^{(t)}$. The filtering is done by keeping only stars that satify:
+$\forall \phi_1: |\mu_1^{(⋆)}-\mu_1^{(t)}(\phi_1^{(⋆)})|<0.7$ and
+$\forall \phi_1: |\mu_2^{(⋆)}-\mu_2^{(t)}(\phi_1^{(⋆)})|<0.7$
+where $\mu_{1,2}$ are the PMs not corrected by the solar reflex-motion, and ⋆ denotes the Gaia data.
 The process is performed by the function "example" given below. There you can see the input parameters used for age, metal, $\sigma_c$ (width in color) and $\sigma$ (width in PM). 
 """
 
@@ -115,7 +115,7 @@ figs_t[6]
 # ╠═3cc2a558-622c-4a5a-8085-557c69bac9a8
 # ╟─5c7cee94-5226-4376-853d-3f10ba846054
 # ╠═d0252793-efdb-455b-a23a-02ff8896b34d
-# ╠═f5c720f8-d807-4e0b-98f6-252072bdedff
+# ╟─f5c720f8-d807-4e0b-98f6-252072bdedff
 # ╠═cff0f3bf-b79e-40a1-a944-8cd290abcf71
 # ╟─5a70437e-8b9a-41db-91de-91c924832eca
 # ╟─8051526f-566b-48a5-a0d4-43bea8dff698
@@ -124,7 +124,7 @@ figs_t[6]
 # ╟─d779f4e4-0f93-4183-9c01-1d4009f8db8e
 # ╟─b6b10200-f743-479d-8aee-668d6938adc3
 # ╠═ffbea6cf-7ddd-4449-abe1-52e309c72ca4
-# ╠═e60d7cfd-75fd-411e-8903-6ba689cdf62c
+# ╟─e60d7cfd-75fd-411e-8903-6ba689cdf62c
 # ╠═b9fc214d-480a-4123-96c6-ac02ffab9d54
 # ╠═d6f2db68-b4cf-4ef0-a571-f83fb058e4ce
 # ╠═b472766e-d3db-4231-9653-2f16a9cc7c04
