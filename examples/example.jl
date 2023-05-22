@@ -8,7 +8,7 @@ function example()
     metal  = [-1.5, -1.5, -1.4, -1.2, -2.2, -1.7]
     filters = fill("UBVRIplus",length(name_s))
     dr     = fill("DR3",length(name_s))
-    # dr[1] = "DR2"
+    dr[1] = "DR2"
     tol_curation = [0.3, 0.3, 1.0]  # tolerances in μ_α*cosδ, μ_δ, Π.
     col_bounds = (-1.0, 4.0)
     box_μ = [[-14,-10.],[-4.,-2.]]

@@ -55,6 +55,6 @@ function basic_pipeline_loop(name_s, name_t, file_corr, file_phot, file_gc, file
         basic_pipeline(name_s[i], array_df, file_filt[i], file_plot[i], name_t[i], tol_curation, col_bounds,
         box_μ, σ_c, σ)
     end
-    GC.gc()
     return nothing
 end
+
