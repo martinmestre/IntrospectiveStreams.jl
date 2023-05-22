@@ -42,7 +42,8 @@ function basic_pipeline(name_s, array_df, file_filt, file_plot, name_t,
     """Do some plots."""
     # window = ((-15,15),(-10,10))
     # plot_scatter_on_μ_plane_self_frame(df_astrom, df_track, file_plot)
-    plot_scatter_on_sky_self_frame(name_s, df_astrom, file_plot)
+    fig = plot_scatter_on_sky_self_frame(name_s, df_astrom, file_plot)
+    electrondisplay(fig)
     GC.gc()
 end
 
