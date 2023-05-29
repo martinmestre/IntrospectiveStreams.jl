@@ -37,7 +37,7 @@ dr[1] = "DR2"
 tol_curation = [0.3, 0.3, 1.0]  # tolerances in μ_α*cosδ, μ_δ, Π.
 col_bounds = (-1.0, 4.0)
 box_μ = [[-14,-10.],[-4.,-2.]]
-σ_c = 1
+σ_c = 2
 σ = 0.7
 
 file_orig, file_corr, file_phot, file_iso, file_filt, file_plot  = name_files_all(dr, name_s, age, metal)
@@ -46,6 +46,8 @@ i = 5
 name_s = name_s[i]
 name_t = name_t[i]
 file_corr = file_corr[i]
+file_filt = file_filt[i]
+file_iso  = file_iso[i]
 file_plot = file_plot[i]
 age = age[i]
 metal = metal[i]
@@ -63,14 +65,35 @@ mask_gc!(df, df_gc)
 # Load galstreams data.
 df_track, self_frame = load_stream_track(name_t)
 D_interp = linear_interpolation(df_track.ϕ₁, df_track.D)
+GC.gc()
 # %%
+
 # Compute the stream self-coordinates and correcte for reflex-motion of the ⊙.
 compute_in_self_coords!(df, self_frame)
 @subset!(df, minimum(df_track.ϕ₁) .< :ϕ₁ .< maximum(df_track.ϕ₁))
 df.D = D_interp.(df.ϕ₁)
-reflex_correct!(df, self_frame)
+# reflex_correct!(df, self_frame)
+GC.gc()
 # %%
 
-fig = plot_scatter_on_sky_self_frame(name_s, df, file_plot)
+σ = 0.5
+df_filt = filter_along_ϕ₁(df, df_track, :ϕ₂, σ)
 
+# %%
+GC.gc()
+# %%
 
+# CMD filtering.
+df_filt.color = df_filt.bp - df_filt.rp
+@subset!(df_filt, col_bounds[1] .< :color .< col_bounds[2])
+filter_cmd!(df_filt, df_iso, σ_c)
+# %%
+
+df_filt2 = @subset(df_filt, 0 .< :ϕ₁ .< 50)
+# %%
+
+window = ((-5,10),(0,10))
+fig =  plot_scatter_on_μ_plane_self_frame(df_filt2, df_track, window, file_plot)
+# %%
+
+fig = plot_scatter_on_sky_self_frame(name_s, df_filt2, file_plot)
