@@ -1,14 +1,15 @@
 module IntrospectiveStreams
 
-    using DataFrames, DataFramesMeta
+    using Reexport
+    @reexport using DataFrames, DataFramesMeta
     using PolygonOps
     using StaticArrays
     using FITSIO
-    using CSV
+    @reexport using CSV
     using Interpolations
-    using CairoMakie, AlgebraOfGraphics
+    @reexport using CairoMakie, AlgebraOfGraphics
     using ElectronDisplay
-    using PythonCall
+    @reexport using PythonCall
 
     const coord = PythonCall.pynew()
     const u = PythonCall.pynew()
@@ -27,6 +28,13 @@ module IntrospectiveStreams
         PythonCall.pycopy!(pyia,pyimport("pyia"))
         PythonCall.pycopy!(ezmist,pyimport("ezmist"))
     end
+
+    export  u,
+            coord,
+            at,
+            galacoord,
+            pyia,
+            ezmist
 
 
     export  correct_extinction_Gaia,
