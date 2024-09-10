@@ -10,7 +10,7 @@ function plot_histog_on_sky(df::DataFrame, window::Tuple{Tuple{Number,Number},Tu
     return fig
 end
 
-function plot_histog_on_sky(df::DataFrame, file::String)
+function plot_histog_on_sky(df::DataFrame, file::String="test.pdf")
     size_inches = (5*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(resolution = size_pt, fontsize = 30)
