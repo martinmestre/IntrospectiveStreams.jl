@@ -1,4 +1,4 @@
-const base_dir = "/home/mmestre/casa/work/data"
+const base_dir = "/home/mmestre/casa/work/Data"
 const file_gc  = "$(base_dir)/gc/Baumgardt/gc.txt"
 
 """Gaia file names for CATS project."""
