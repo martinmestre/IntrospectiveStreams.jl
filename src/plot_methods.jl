@@ -95,7 +95,7 @@ end
 function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
+    fig = Figure(size = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window,title=name_s))
     colorbar!(fig[1,2], ag)
@@ -106,7 +106,7 @@ end
 function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track::DataFrame, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
+    fig = Figure(size = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=3, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
@@ -117,7 +117,7 @@ end
 function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
+    fig = Figure(size = size_pt, fontsize = 30)
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;limits=window, title=name_s))
     colorbar!(fig[1,2], ag)
@@ -128,7 +128,7 @@ end
 function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
+    fig = Figure(size = size_pt, fontsize = 30)
     plt = data(df)*visual(markersize=3, color=(:black,1))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt, axis=(;title=name_s))
     colorbar!(fig[1,2], ag)
@@ -140,7 +140,7 @@ end
 function plot_scatter_on_sky_μ_arrows_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, step::Integer, file::String)
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
+    fig = Figure(size = size_pt, fontsize = 30)
     plt = (data(df)*visual(markersize=1, color=(:black,1))+data(df_track)*visual(markersize=1,color="red"))*mapping(:ϕ₁ =>L"ϕ_1 [°]", :ϕ₂=>L"ϕ_2 [°]")
     ag = draw!(fig, plt,  axis=(;limits=window))
     us = df.μ₁cosϕ₂./cos.(df.ϕ₂*π/180.)
