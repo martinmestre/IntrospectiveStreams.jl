@@ -16,6 +16,7 @@ function basic_pipeline(name_s, array_df, file_filt, file_plot, name_t,
 
     # Load galstreams data.
     df_track, self_frame = load_stream_track(name_t)
+    @show typeof(self_frame)
     D_interp = linear_interpolation(df_track.ϕ₁, df_track.D)  # only activate if needed.
 
     # Compute the stream self-coordinates and correcte for reflex-motion of the ⊙.
