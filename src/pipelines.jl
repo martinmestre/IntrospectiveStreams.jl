@@ -17,13 +17,17 @@ function basic_pipeline(name_s, array_df, file_filt, file_plot, name_t,
     # Load galstreams data.
     df_track, self_frame = load_stream_track(name_t)
     @show typeof(self_frame)
+    @show pytype(self_frame)
     D_interp = linear_interpolation(df_track.ϕ₁, df_track.D)  # only activate if needed.
 
     # Compute the stream self-coordinates and correcte for reflex-motion of the ⊙.
     compute_in_self_coords!(df_astrom, self_frame)
     @subset!(df_astrom, minimum(df_track.ϕ₁) .< :ϕ₁ .< maximum(df_track.ϕ₁))
     df_astrom.D = D_interp.(df_astrom.ϕ₁)
+    df_astrom2 = deepcopy(df_astrom)
     reflex_correct!(df_astrom, self_frame)
+    reflex_correct_steps!(df_astrom2, self_frame)
+    @show df_astrom.μ₂[1:100]==df_astrom2.μ₂[1:100]
 
     # Raw phase-space filtering
     @subset!(df_astrom, :parallax .< 1.)
