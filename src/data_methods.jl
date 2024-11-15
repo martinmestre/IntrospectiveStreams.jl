@@ -78,9 +78,9 @@ end
 """Load Galstreams data (one single stream track)."""
 function load_stream_track(name_t::String)
     mwsts = galstreams.MWStreams(verbose=false, implement_Off=true)
-    resumen = mwsts.summary |> PyPandasDataFrame |> DataFrame
-    bool_on = resumen.On .== true
-    𝒯 = resumen.TrackName[bool_on]
+    # resumen = mwsts.summary |> PyPandasDataFrame |> DataFrame
+    # bool_on = resumen.On .== true
+    # 𝒯 = resumen.TrackName[bool_on]
     track = mwsts[name_t]
     frame = track.stream_frame
     self_coords = track.track.transform_to(frame)
@@ -265,15 +265,12 @@ function reflex_correct_steps!(df::DataFrame, frame::Py)::Nothing
     gc_frame = coord.Galactocentric(galcen_distance=r☼, galcen_v_sun=v☼, z_sun=0*u.pc)
     observed = sky_coords.transform_to(gc_frame)
     rep = observed.cartesian.without_differentials()
-    @show observed.cartesian.differentials
     rep = rep.with_differentials(observed.cartesian.differentials["s"] + v☼)
     sky_coords_rc = gc_frame.realize_frame(rep).transform_to(frame)
-    @show pytype(sky_coords) pytype(gc_frame)  pytype(sky_coords.frame) pytype(sky_coords_rc)
     # sky_coords_rc = galacoord.reflex_correct(sky_coords, gc_frame)
     df.μ₁cosϕ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi1_cosphi2.value)
     df.μ₁_rc = @. df.μ₁cosϕ₂_rc/cos(df.ϕ₂*π/180.0)
     df.μ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi2.value)
-    @show df.μ₁cosϕ₂[1:5]
     return nothing
 end
 
@@ -289,7 +286,6 @@ function reflex_correct!(df::DataFrame, frame::Py)::Nothing
     df.μ₁cosϕ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi1_cosphi2.value)
     df.μ₁_rc = @. df.μ₁cosϕ₂_rc/cos(df.ϕ₂*π/180.0)
     df.μ₂_rc = pyconvert(Vector{Float64}, sky_coords_rc.pm_phi2.value)
-    @show df.μ₁cosϕ₂[1:5]
     return nothing
 end
 
