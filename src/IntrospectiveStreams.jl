@@ -37,7 +37,8 @@ module IntrospectiveStreams
             ezmist
 
 
-    export  correct_extinction_Gaia,
+    export  get_dataframes,
+            correct_extinction_Gaia,
             correct_extinction_Gaia_loop,
             curation!,
             load_stream_track,
@@ -53,6 +54,7 @@ module IntrospectiveStreams
             filter_PWB18!,
             filter_box_on_μ_plane!,
             reflex_correct!,
+            reflex_correct_steps!,
             clean_xmatch!
 
     export  plot_histog_on_sky,
