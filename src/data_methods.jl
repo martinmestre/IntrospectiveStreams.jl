@@ -97,13 +97,50 @@ function load_stream_track(name_t::String)
     return df_track, frame
 end
 
+"""Z to FeH transformation"""
+function z2feh(z)
+        # Section 3.1 of Choi et al. 2016 (https://arxiv.org/abs/1604.08592)
+        z₀  = z                # Initial metal abundance
+        yₚ     = 0.249            # Primordial He abundance (Planck 2015)
+        c       = 1.5              # He enrichment ratio
+
+        y₀ = yₚ + c * z₀
+        x₀ = 1 - y₀ - z₀
+
+        z☼ = 0.0142           # Solar metal abundance
+        y☼ = 0.2703           # Solar He abundance (Asplund 2009)
+        x☼ = 1 - y☼ - z☼
+
+        return log10( z₀/z☼ * x☼/x₀)
+end
+
+"""FeH to Z transformation"""
+function feh2z(feh)
+        # Section 3.1 of Choi et al. 2016 (https://arxiv.org/abs/1604.08592)
+        yₚ     = 0.249            # Primordial He abundance (Planck 2015)
+        c       = 1.5              # He enrichment ratio
+
+        z☼ = 0.0142           # Solar metal abundance
+        y☼ = 0.2703           # Solar He abundance (Asplund 2009)
+        x☼ = 1 - y☼ - z☼
+
+        return (1 - yₚ)/( (1 + c) + (x☼/z☼) * 10^(-feh))
+end
+
 """Download stellar isochrones"""
-function get_isochrone(age::Number, metal::Number,
+function get_isochrone(family::iso_family, age::Number, metal::Number,
                            phot::String, age_scale::String)::DataFrame
-    println("Note that MIST uses [FeH] (not Z abundance).")
-    df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
+    if(family==:mist)
+        println("Note that MIST uses [FeH] (not Z abundance).")
+        df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
                     output=phot, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
+    elseif(family==:parsec)
+        println("Note that Parsec uses Z = [M/H] abundance, not [FeH]).")
+        df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
+                    age_scale=age_scale, output_option="photometry",
+                    output=phot, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
+    end
     return df
 end
 
