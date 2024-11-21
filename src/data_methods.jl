@@ -137,7 +137,8 @@ function get_isochrone(family::iso_family, age::Number, metal::Number,
                     output=phot, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
         println("Note that Parsec uses Z = [M/H] abundance, not [FeH]).")
-        df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
+        z = feh2z(metal)
+        df = ezpadova.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
                     output=phot, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     end
