@@ -1,6 +1,6 @@
 using IntrospectiveStreams
 using Test
 
-@testset "IntrospectiveStreams.jl" begin
-    # Write your tests here.
+@time begin
+    include("isochrones/test.jl")
 end

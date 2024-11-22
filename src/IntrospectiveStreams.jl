@@ -55,7 +55,8 @@ module IntrospectiveStreams
             filter_box_on_μ_plane!,
             reflex_correct!,
             reflex_correct_steps!,
-            clean_xmatch!
+            clean_xmatch!,
+            z2feh_mist, z2feh_parsec, feh2z_mist, feh2z_parsec
 
     export  plot_histog_on_sky,
             plot_histog_on_sky_with_gc,
