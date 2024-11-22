@@ -18,6 +18,7 @@ module IntrospectiveStreams
     const galacoord = PythonCall.pynew()
     const pyia = PythonCall.pynew()
     const ezmist = PythonCall.pynew()
+    const ezpadova = PythonCall.pynew()
 
     function __init__()
         PythonCall.pycopy!(coord,pyimport("astropy.coordinates"))
@@ -27,6 +28,7 @@ module IntrospectiveStreams
         PythonCall.pycopy!(galacoord,pyimport("gala.coordinates"))
         PythonCall.pycopy!(pyia,pyimport("pyia"))
         PythonCall.pycopy!(ezmist,pyimport("ezmist"))
+        PythonCall.pycopy!(ezpadova,pyimport("ezpadova"))
     end
 
     export  u,
@@ -34,7 +36,8 @@ module IntrospectiveStreams
             at,
             galacoord,
             pyia,
-            ezmist
+            ezmist,
+            ezpadova
 
 
     export  get_dataframes,
