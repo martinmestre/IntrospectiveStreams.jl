@@ -1,5 +1,5 @@
 """Load dataframes from files."""
-function get_dataframes(file_corr, file_phot, file_gc, file_iso, age, metal, filter)::Vector{Union{DataFrame,Nothing}}
+function get_dataframes(file_corr, file_phot, file_gc, file_iso, family, age, metal, filter)::Vector{Union{DataFrame,Nothing}}
     f = FITS(file_corr)
     df_astrom = DataFrame(f[2])
     if isnothing(file_phot)
@@ -12,7 +12,7 @@ function get_dataframes(file_corr, file_phot, file_gc, file_iso, age, metal, fil
     if isfile(file_iso)
         df_iso = DataFrame(CSV.File(file_iso))
     else
-        df_iso = get_isochrone(age, metal, filter, "linear")
+        df_iso = get_isochrone(family, age, metal, filter)
         CSV.write(file_iso, df_iso)
     end
     array_df = [df_astrom, df_phot, df_gc, df_iso]
@@ -164,16 +164,16 @@ end
 
 """Download stellar isochrones"""
 function get_isochrone(family::Symbol, age::Number, metal::Number,
-                           phot::String, age_scale::String)::DataFrame
+                           filter::String; age_scale::String="linear")::DataFrame
     if(family==:mist)
         println("Note that MIST uses [FeH] (not Z abundance).")
         df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
-                    output=phot, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
+                    output=filter, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
         println("Note that Parsec uses Z = [M/H] abundance, not [FeH]).")
         df = ezpadova.get_one_isochrone(age_yr=age, MH=metal, model="parsec20s",
-                      phot=phot)|> PyPandasDataFrame |> DataFrame
+                      phot=filter)|> PyPandasDataFrame |> DataFrame
     end
     return df
 end

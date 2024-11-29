@@ -21,3 +21,15 @@ end
         @test z₂ ≈ z rtol=5.0e-7
     end
 end
+
+@testset "DownloadIsochroneEzMIST" begin
+    family, age, metal, filter = :mist, 1.0e7, 0.0, "UBVRIplus"
+    df_iso = get_isochrone(family, age, metal, filter)
+    @test typeof(df_iso) == DataFrame
+end
+
+@testset "DownloadIsochroneEzPARSEC" begin
+    family, age, metal, filter = :parsec, 1.0e7, 0.0, "YBC_hsc"
+    df_iso = get_isochrone(family, age, metal, filter)
+    @test typeof(df_iso) == DataFrame
+end
