@@ -166,13 +166,13 @@ end
 function get_isochrone(family::Symbol, age::Number, metal::Number,
                            filter::String; age_scale::String="linear")::DataFrame
     if(family==:mist)
-        println("Note that MIST uses [FeH] (not Z abundance).")
+        println("Note that MIST uses metallicity [FeH] (not Z abundance).")
         df = ezmist.get_one_isochrone(age=age, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
                     output=filter, Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
-        println("Note that Parsec uses Z = [M/H] abundance, not [FeH]).")
-        df = ezpadova.get_one_isochrone(age_yr=age, MH=metal, model="parsec20s",
+        println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z is hardcoded).")
+        df = ezpadova.get_one_isochrone(age_yr=age, MH=metal, model="parsec12s",
                       phot=filter)|> PyPandasDataFrame |> DataFrame
     end
     return df
