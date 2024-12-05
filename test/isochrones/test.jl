@@ -24,13 +24,13 @@ end
 
 @testset "DownloadIsochroneEzMIST" begin
     n=2
-    exp_l = 5
+    exp_l = 9
     exp_h = 10.3
     metal_l = -4
     metal_h = 0.5
     f_exp(x) = (exp_h-exp_l)*x+exp_l
     f_metal(x) = (metal_h-metal_l)*x+metal_l
-    for i ∈ 1:5
+    for i ∈ 1:30
         age = 10^f_exp(rand())
         metal = f_metal(rand())
         @show age, metal
@@ -42,13 +42,13 @@ end
 
 @testset "DownloadIsochroneEzPARSEC" begin
     n=2
-    exp_l = 5
+    exp_l = 9
     exp_h = 10.3
     metal_l = -2.19999
     metal_h = 0.5
     f_exp(x) = (exp_h-exp_l)*x+exp_l
     f_metal(x) = (metal_h-metal_l)*x+metal_l
-    for i ∈ 1:5
+    for i ∈ 1:30
         age = 10^f_exp(rand())
         metal = f_metal(rand())
         @show age, metal
