@@ -83,3 +83,22 @@ function get_isochrone(family::Symbol, age::Number, metal::Number,
     end
     return df
 end
+
+"Interpolate isochrones from the previously downloaded data base (artifacts dir)"
+function interpolate_isochrone(family, age, metal, filter)
+        @assert family == :parsec "Only Parsec isochrones accepted for the moment"
+        if(family==:parsec)
+                @assert 9.2≤log10(age)≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
+                @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
+                if(filter=="YBC_hsc")
+                        file_artif = "artifacts/isochrones/parsec/SubaruHSC/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+                        df_artif = DataFrame(CSV.File(file_artif, delim=" ", ignorerepeated=true, comment="#"))
+                        points = [df_artif.MH df_artif.logAge df_artif.Mini]'
+                        samples = df_artif.gmag
+                        itp = ScatteredInterpolation.interpolate(Multiquadratic(), points, samples)
+                        interpolated = evaluate(itp, [0.0, 10.0, 1.0])
+                        @show itp interpolated
+                        return
+                end
+        end
+end

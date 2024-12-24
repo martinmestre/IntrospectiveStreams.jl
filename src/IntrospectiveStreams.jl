@@ -7,6 +7,7 @@ module IntrospectiveStreams
     using FITSIO
     @reexport using CSV
     using Interpolations
+    using ScatteredInterpolation
     @reexport using CairoMakie, AlgebraOfGraphics
     using ElectronDisplay
     @reexport using PythonCall
@@ -46,6 +47,7 @@ module IntrospectiveStreams
             curation!,
             load_stream_track,
             get_isochrone,
+            interpolate_isochrone,
             compute_in_self_coords!,
             mask_gc!,
             filter_cmd!,
@@ -85,6 +87,7 @@ module IntrospectiveStreams
            basic_pipeline_loop
 
     export example
+
 
 
     include("methods/extinctions.jl")
