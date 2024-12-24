@@ -86,9 +86,14 @@ module IntrospectiveStreams
 
     export example
 
-    include("data_methods.jl")
-    include("plot_methods.jl")
-    include("naming_files.jl")
+
+    include("methods/extinctions.jl")
+    include("methods/transformations.jl")
+    include("methods/filters.jl")
+    include("methods/get_data.jl")
+    include("methods/isochrones.jl")
+    include("methods/naming_files.jl")
+    include("methods/plots.jl")
     include("pipelines.jl")
     include("../examples/example.jl")
 
