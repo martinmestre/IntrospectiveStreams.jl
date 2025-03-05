@@ -83,6 +83,15 @@ function get_isochrone(family::Symbol, age::Number, metal::Number,
     end
     return df
 end
+function get_isochrone(family::Symbol, age::NTuple{3,Number}, metal::NTuple{3,Number}, filter::String)::DataFrame
+    @assert family==:parsec
+    @assert -5 ≤ log10(age[1]) && log10(age[2]) ≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
+    @assert -2.2 < metal[1] && metal[2] ≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
+    println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
+        df = ezpadova.get_isochrones(age_yr=age, MH=metal,model="parsec12s", phot=filter)|> PyPandasDataFrame |> DataFrame
+    return df
+end
+
 
 "Interpolate isochrones from the previously downloaded data base (artifacts dir)"
 function interpolate_isochrone(family, age, metal, filter)
