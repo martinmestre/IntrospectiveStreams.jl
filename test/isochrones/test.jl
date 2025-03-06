@@ -41,7 +41,7 @@ end
 end
 
 @testset "DownloadIsochroneEzParsec" begin
-    n=2
+    n=4
     exp_l = 9
     exp_h = 10.3
     metal_l = -2.19999
@@ -54,9 +54,27 @@ end
         @show age, metal
         family, age, metal, filter = :parsec, age, metal, "YBC_hsc"
         df_iso = get_isochrone(family, age, metal, filter)
-        @test typeof(df_iso) == DataFrame
+        @show typeof(df_iso) == DataFrame
     end
+    sys = pyimport("sys")
+    println("Estás usando el entorno de Python en: ", sys.executable)
+    println(pyimport("ssl").get_default_verify_paths())
 end
+
+
+
+@testset "SSL certificates" begin
+    sys = pyimport("sys")
+    println("Estás usando el entorno de Python en: ", sys.executable)
+    println("PYTHONPATH: ", get(ENV, "PYTHONPATH", ""))
+    println("SSL_CERT_FILE: ", get(ENV, "SSL_CERT_FILE", ""))
+    println("SSL_CERT_DIR: ", get(ENV, "SSL_CERT_DIR", ""))
+    println(pyimport("ssl").get_default_verify_paths())
+end
+
+
+
+
 
 # @testset "InterpolateParsecIsochone" begin
 #     n=2
