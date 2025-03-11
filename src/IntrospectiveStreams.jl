@@ -2,12 +2,11 @@ module IntrospectiveStreams
 
     using Reexport
     @reexport using DataFrames, DataFramesMeta
-    using PolygonOps
     using StaticArrays
     using FITSIO
     @reexport using CSV
-    using Interpolations
-    using ScatteredInterpolation
+    # using Interpolations
+    # using ScatteredInterpolation
     # @reexport using CairoMakie, AlgebraOfGraphics
     # using ElectronDisplay
     @reexport using PythonCall
