@@ -69,7 +69,7 @@ end
 
 @testset "DownloadIsochroneEzParsec Grid dispatch" begin
     n=7
-    exp_l = 9
+    exp_l = 8
     exp_h = 10.3
     age_l, age_h = 10.0.^(exp_l, exp_h)
     metal_l = -2.19999
@@ -85,26 +85,11 @@ end
 
 
 
-
-
-
-
-# @testset "InterpolateParsecIsochone" begin
-#     n=2
-#     exp_l = 9
-#     exp_h = 10.3
-#     metal_l = -2.19999
-#     metal_h = 0.5
-#     f_exp(x) = (exp_h-exp_l)*x+exp_l
-#     f_metal(x) = (metal_h-metal_l)*x+metal_l
-#     for i ∈ 1:n
-#         age = 10^f_exp(rand())
-#         metal = f_metal(rand())
-#         @show age, metal
-#         family, age, metal, filter = :parsec, age, metal, "YBC_hsc"
-#         df_download = get_isochrone(family, age, metal, filter)
-#         df_interpol = interpolate_isochrone(family, age, metal, filter)
-#         @test df_download ≈ df_interpol rtol=5.0e-7
-#     end
-# end
+@testset "InterpolateParsecIsochrone" begin
+    df_int = bui
+    @test df_int.Mini ≈ df_iso.Min rtol=1.e-5
+    @test df_int.MH ≈ df_iso.MH rtol=1.e-5
+    @test df_int.logAge ≈ df_iso.logAge rtol=1.e-5
+    @test df_int ≈ df_iso rtol=1.e-5 # This includes the above comparison per field.
+end
 
