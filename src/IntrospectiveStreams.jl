@@ -8,8 +8,8 @@ module IntrospectiveStreams
     @reexport using CSV
     using Interpolations
     using ScatteredInterpolation
-    @reexport using CairoMakie, AlgebraOfGraphics
-    using ElectronDisplay
+    # @reexport using CairoMakie, AlgebraOfGraphics
+    # using ElectronDisplay
     @reexport using PythonCall
 
     const coord = PythonCall.pynew()
@@ -63,19 +63,19 @@ module IntrospectiveStreams
             clean_xmatch!,
             z2feh_mist, z2feh_parsec, feh2z_mist, feh2z_parsec
 
-    export  plot_histog_on_sky,
-            plot_histog_on_sky_with_gc,
-            plot_histog_on_sky_self_frame,
-            plot_scatter_on_sky_self_frame,
-            plot_scatter_on_sky_μ_arrows_self_frame,
-            plot_scatter_on_sky_μ_corr_arrows_self_frame,
-            plot_histog_on_μ_plane,
-            plot_histog_on_μ_plane_self_frame,
-            plot_scatter_on_μ_plane_self_frame,
-            plot_scatter_on_μ_corr_plane_self_frame,
-            plot_track_on_μ_rc_plane_self_frame,
-            plot_histog_cmd,
-            plot_isochrone_cmd
+    # export  plot_histog_on_sky,
+    #         plot_histog_on_sky_with_gc,
+    #         plot_histog_on_sky_self_frame,
+    #         plot_scatter_on_sky_self_frame,
+    #         plot_scatter_on_sky_μ_arrows_self_frame,
+    #         plot_scatter_on_sky_μ_corr_arrows_self_frame,
+    #         plot_histog_on_μ_plane,
+    #         plot_histog_on_μ_plane_self_frame,
+    #         plot_scatter_on_μ_plane_self_frame,
+    #         plot_scatter_on_μ_corr_plane_self_frame,
+    #         plot_track_on_μ_rc_plane_self_frame,
+    #         plot_histog_cmd,
+    #         plot_isochrone_cmd
 
     export name_files_Gaia,
            name_files_photometry,
@@ -96,7 +96,7 @@ module IntrospectiveStreams
     include("methods/get_data.jl")
     include("methods/isochrones.jl")
     include("methods/naming_files.jl")
-    include("methods/plots.jl")
+    # include("methods/plots.jl")
     include("pipelines.jl")
     include("../examples/example.jl")
 

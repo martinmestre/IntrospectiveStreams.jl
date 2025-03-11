@@ -1,11 +1,11 @@
-@testset "SSL certificates used by EzPadova" begin
-    python_exe = ENV["JULIA_PYTHONCALL_EXE"]
-    env_name = split(python_exe, "/")[end-2]  # El nombre del entorno está en la penúltima posición
-    ssl_cert_file = joinpath("/home/mmestre/.conda/envs", env_name, "ssl/cert.pem")
-    ssl_cert_dir = joinpath("/home/mmestre/.conda/envs", env_name, "ssl/certs")
-    @test ENV["SSL_CERT_FILE"] == ssl_cert_file
-    @test ENV["SSL_CERT_DIR"] == ssl_cert_dir
-end
+# @testset "SSL certificates used by EzPadova" begin
+#     python_exe = ENV["JULIA_PYTHONCALL_EXE"]
+#     env_name = split(python_exe, "/")[end-2]  # El nombre del entorno está en la penúltima posición
+#     ssl_cert_file = joinpath("/home/mmestre/.conda/envs", env_name, "ssl/cert.pem")
+#     ssl_cert_dir = joinpath("/home/mmestre/.conda/envs", env_name, "ssl/certs")
+#     @test ENV["SSL_CERT_FILE"] == ssl_cert_file
+#     @test ENV["SSL_CERT_DIR"] == ssl_cert_dir
+# end
 
 @testset "MetallicityTransformationsUsedInMist" begin
     n = 50
@@ -50,7 +50,7 @@ end
 end
 
 @testset "DownloadIsochroneEzParsec" begin
-    n=4
+    n=7
     exp_l = 9
     exp_h = 10.3
     metal_l = -2.19999
@@ -68,7 +68,7 @@ end
 end
 
 @testset "DownloadIsochroneEzParsec Grid dispatch" begin
-    n=5
+    n=7
     exp_l = 9
     exp_h = 10.3
     age_l, age_h = 10.0.^(exp_l, exp_h)

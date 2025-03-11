@@ -4,12 +4,9 @@ authors = ["Martín Mestre <mmestre@fcaglp.unlp.edu.ar> and contributors"]
 version = "1.0.0-DEV"
 
 [deps]
-AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
-ElectronDisplay = "d872a56f-244b-5cc9-b574-2017b5b909a8"
 FITSIO = "525bcba6-941b-5504-bd06-fd0dc1a4d2eb"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 PolygonOps = "647866c9-e3ac-4575-94e7-e3d426903924"
@@ -19,20 +16,7 @@ ScatteredInterpolation = "3f865c0f-6dca-5f4d-999b-29fe1e7e3c92"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-AlgebraOfGraphics = "0.8.7"
-CSV = "0.10"
-CairoMakie = "0.12.9"
-DataFrames = "1"
-DataFramesMeta = "0.14"
-ElectronDisplay = "1"
-FITSIO = "0.17"
-Interpolations = "0.14"
-PolygonOps = "0.1"
-PythonCall = "0.9.24"
 Reexport = "1.2.2"
-ScatteredInterpolation = "0.3.6"
-StaticArrays = "1"
-julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
