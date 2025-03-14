@@ -1,6 +1,6 @@
 
 """Example of package usage."""
-function example()
+function example_pipeline()
     Makie.inline!(true)
     name_s = ["GD-1" , "GD-1", "Pal5", "Jhelum", "Fjorm-M68","PS1-A"]
     name_t = ["GD-1-PB18", "GD-1-PB18", "Pal5-PW19", "Jhelum-b-B19", "M68-P19", "PS1-A-B16"]

@@ -5,7 +5,7 @@ module IntrospectiveStreams
     using StaticArrays
     using FITSIO
     @reexport using CSV
-    # using Interpolations
+    using Interpolations
     # using ScatteredInterpolation
     # @reexport using CairoMakie, AlgebraOfGraphics
     # using ElectronDisplay
@@ -85,7 +85,8 @@ module IntrospectiveStreams
     export basic_pipeline,
            basic_pipeline_loop
 
-    export example
+    export example_pipeline,
+           example_interpolate_isochrone
 
 
 
@@ -93,10 +94,11 @@ module IntrospectiveStreams
     include("methods/transformations.jl")
     include("methods/filters.jl")
     include("methods/get_data.jl")
-    include("methods/isochrones.jl")
+    include("methods/isochrones/isochrone_tools.jl")
+    include("methods/isochrones/isochrones.jl")
     include("methods/naming_files.jl")
     # include("methods/plots.jl")
     include("pipelines.jl")
-    include("../examples/example.jl")
-
+    include("../examples/example_pipeline.jl")
+    include("../examples/example_isochrone.jl")
 end

@@ -43,7 +43,7 @@ end
     for i ∈ 1:n
         age = 10^f_exp(rand())
         metal = f_metal(rand())
-        df_iso = get_isochrone(family, age, metal, filter)
+        df_iso = get_isochrone(family, filter, age, metal)
         @test typeof(df_iso) == DataFrame
     end
 end
@@ -60,7 +60,7 @@ end
     for i ∈ 1:n
         age = 10^f_exp(rand())
         metal = f_metal(rand())
-        df_iso = get_isochrone(family, age, metal, filter)
+        df_iso = get_isochrone(family, filter, age, metal)
         @test typeof(df_iso) == DataFrame
     end
 end
@@ -77,7 +77,7 @@ end
     age = (age_l, age_h, step_age)
     metal = (metal_l, metal_h, step_metal)
     family, filter = :parsec, "YBC_hsc"
-    df_iso = get_isochrone(family, age, metal, filter)
+    df_iso = get_isochrone(family, filter, age, metal)
     @test typeof(df_iso) == DataFrame
 end
 
@@ -93,8 +93,8 @@ end
     for i ∈ 1:n
         age = 10^f_exp(rand())
         metal = f_metal(rand())
-        df_iso = get_isochrone(family, age, metal, filter)
-        df_intp = interpolate_isochrone(family, age, metal, filter)
+        df_iso = get_isochrone(family, filter, age, metal)
+        df_intp = interpolate_isochrone(family, filter, age, metal)
         @test df_intp.Mini ≈ df_iso.Min rtol=1.e-5
         @test df_intp.MH ≈ df_iso.MH rtol=1.e-5
         @test df_intp.logAge ≈ df_iso.logAge rtol=1.e-5
