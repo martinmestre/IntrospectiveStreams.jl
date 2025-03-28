@@ -97,6 +97,7 @@ module IntrospectiveStreams
     include("methods/isochrones/isochrone_tools.jl")
     include("methods/isochrones/isochrones.jl")
     include("methods/naming_files.jl")
+    include("methods/missing.jl")
     # include("methods/plots.jl")
     include("pipelines.jl")
     include("../examples/example_pipeline.jl")

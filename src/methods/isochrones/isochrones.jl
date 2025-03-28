@@ -41,59 +41,94 @@ function interpolate_isochrone(family, filter, age, metal)
         end
 end
 
-# Función para generar la isócrona completa
+
+
 function interpolate_isochrone(df::DataFrame, target_age::Real, target_metallicity::Real)
-    # Encontrar las 4 isócronas más cercanas
+    # Convert age to logarithmic scale
     log_age = log10(target_age)
+
+    # Get 4 nearest isochrones (already filtered from df)
     nearest_isochrones = find_nearest_isochrones(df, log_age, target_metallicity)
 
-    # Obtener los rangos de masa inicial de las isócronas cercanas
-    initial_mass_ranges = [unique(df[(df.logAge .== row.logAge) .& (df.MH .== row.MH), :Mini]) for row in eachrow(nearest_isochrones)]
+    # Verify we have exactly 4 unique age-metallicity combinations
+    unique_pairs = unique(nearest_isochrones[:, [:logAge, :MH]])
+    if size(unique_pairs, 1) != 4
+        error("Expected exactly 4 unique age-metallicity combinations. Found: $(size(unique_pairs, 1))")
+    end
 
-    # Calcular el rango de intersección
+    # Get initial mass ranges from nearest_isochrones (not full df)
+    initial_mass_ranges = [unique(nearest_isochrones[(nearest_isochrones.logAge .== row.logAge) .&
+                              (nearest_isochrones.MH .== row.MH), :Mini]) for row in eachrow(unique_pairs)]
+
+    # Calculate safe intersection range
     min_masses = [minimum(iso) for iso in initial_mass_ranges]
     max_masses = [maximum(iso) for iso in initial_mass_ranges]
-    intersection_range = (maximum(min_masses), minimum(max_masses))  # [max(mínimos), min(máximos)]
+    intersection_range = (maximum(min_masses), minimum(max_masses))
 
-    # Seleccionar la isócrona con más puntos dentro del rango de intersección
+    # Select reference isochrone (with most points in intersection range)
     iso_with_most_masses = argmax([count(m -> intersection_range[1] <= m <= intersection_range[2], iso) for iso in initial_mass_ranges])
 
-    # Filtrar las masas iniciales de la isócrona seleccionada que están dentro del rango de intersección
-    initial_masses = filter(m -> intersection_range[1] <= m <= intersection_range[2], initial_mass_ranges[iso_with_most_masses])
+    # Filter masses strictly within intersection range
+    initial_masses = filter(m -> intersection_range[1] < m < intersection_range[2],
+                          initial_mass_ranges[iso_with_most_masses])
 
-
-    # Interpolar todos los campos del DataFrame (excepto age, metallicity, initial_mass)
+    # Prepare output DataFrame
     interpolated_df = DataFrame(initial_mass=initial_masses)
-    for col in names(df)
-        if col ∉ ["logAge", "MH", "Mini"]
-            # Precalcular interpoladores para cada fila de nearest_isochrones
-            interpolators = []
-            for row in eachrow(nearest_isochrones)
-                iso = df[(df.logAge .== row.logAge) .& (df.MH .== row.MH), :]
-                sort!(iso, :Mini)  # Ordenar por masa inicial (Mini)
-                itp = LinearInterpolation(iso.Mini, iso.magnitude, extrapolation_bc=Line())
-                push!(interpolators, itp)
+
+    # Unique nodes for bilinear interpolation (sorted)
+    age_nodes = sort(unique(nearest_isochrones.logAge))
+    metallicity_nodes = sort(unique(nearest_isochrones.MH))
+
+    # Interpolate each relevant column
+    for col in setdiff(names(df), ["logAge", "MH", "Mini"])
+        interpolators = Dict()
+
+        # Build interpolators for each unique isochrone using nearest_isochrones
+        for row in eachrow(unique_pairs)
+            iso = nearest_isochrones[(nearest_isochrones.logAge .== row.logAge) .&
+                                  (nearest_isochrones.MH .== row.MH), [:Mini, Symbol(col)]]
+
+            # Clean and sort (with physical tolerance)
+            clean_iso = unique(iso, :Mini) |> x -> sort(x, :Mini)
+
+            # Verify sufficient points
+            if nrow(clean_iso) < 2
+                error("Insufficient points for $col (logAge=$(row.logAge), MH=$(row.MH))")
             end
 
-            # Calcular magnitudes para cada initial_mass
-            magnitudes = []
-            for initial_mass in initial_masses
-                mags = []
-                for (i, row) in enumerate(eachrow(nearest_isochrones))
-                    mag = interpolators[i](initial_mass)  # Usar el interpolador precalculado
-                    push!(mags, mag)
-                end
-
-                # Interpolación bilineal en edad y metalicidad usando Interpolations.jl
-                age_nodes = unique(nearest_isochrones.logAge)
-                metallicity_nodes = unique(nearest_isochrones.MH)
-                itp = LinearInterpolation((age_nodes, metallicity_nodes), reshape(mags, (2, 2)), extrapolation_bc=Line())
-                magnitude = itp(target_age, target_metallicity)
-                push!(magnitudes, magnitude)
-            end
-
-            interpolated_df[!, col] = magnitudes
+            # Strict interpolator (no extrapolation)
+            interpolators[(row.logAge, row.MH)] = LinearInterpolation(
+                clean_iso.Mini,
+                clean_iso[!, col],
+                extrapolation_bc=Throw()  # Will error if extrapolation attempted
+            )
         end
+
+        # Calculate magnitudes for each initial mass
+        magnitudes = Float64[]
+        for m in initial_masses
+            try
+                # Build 2x2 magnitude matrix
+                mags_matrix = [interpolators[(age, metal)](m) for age in age_nodes, metal in metallicity_nodes]
+
+                # Strict bilinear interpolation
+                bilin_itp = LinearInterpolation(
+                    (age_nodes, metallicity_nodes),
+                    mags_matrix,
+                    extrapolation_bc=Throw()
+                )
+                push!(magnitudes, bilin_itp(log_age, target_metallicity))
+            catch e
+                error("""Interpolation failed for:
+                      Column: $col
+                      Mass: $m
+                      Target age: $log_age
+                      Target metallicity: $target_metallicity
+                      Error: $e""")
+            end
+        end
+
+        interpolated_df[!, col] = magnitudes
     end
 
     return interpolated_df
