@@ -426,14 +426,25 @@ function plot_histog_cmd(df::DataFrame, file::String)
 end
 
 """Plot single isochrone."""
-function plot_isochrone_cmd(df::DataFrame, file::String)
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:color=>L"BP-RP", :Gaia_G_EDR3 =>L"G")*visual(Lines)
-    draw!(fig, plt, axis=(;yreversed=true))
-    save(file, fig, pt_per_unit=1)
-    return fig
+function plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
+    if telescope == :Gaia
+        size_inches = (3*3, 3*3)
+        size_pt = 72 .* size_inches
+        fig = Figure(size = size_pt, fontsize = 30)
+        plt = data(df)*mapping(:color=>L"BP-RP", :Gaia_G_EDR3 =>L"G")*visual(Lines)
+        draw!(fig, plt, axis=(;yreversed=true))
+        save(file, fig, pt_per_unit=1)
+    elseif telescope == :Subaru
+        size_inches = (3*3, 3*3)
+        size_pt = 72 .* size_inches
+        fig = Figure(size = size_pt, fontsize = 30)
+        plt = data(df)*mapping(:color=>L"G-R", :gmag =>L"G")*visual(Lines)
+        draw!(fig, plt, axis=(;yreversed=true))
+        save(file, fig, pt_per_unit=1)
+    else
+        error("Telescope $telescope not available for CMD plot.")
+    end
+    return
 end
 
 

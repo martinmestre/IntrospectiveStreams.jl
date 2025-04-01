@@ -44,6 +44,10 @@ end
 
 
 function interpolate_isochrone(df::DataFrame, target_age::Real, target_metallicity::Real)
+    # Ver columnas con algún missing value y eliminarlas
+    columnas_con_missing(df)
+    eliminar_columnas_con_missing!(df)
+
     # Convert age to logarithmic scale
     log_age = log10(target_age)
 
