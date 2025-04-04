@@ -13,7 +13,7 @@ function get_isochrone(family::Symbol, filter::String, age::Number, metal::Numbe
         @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
         println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
         df = ezpadova.get_isochrones(age_yr=(age,age,0), MH=(metal,metal,0),
-                        model="parsec12s", phot=filter)|> PyPandasDataFrame |> DataFrame
+                        model="parsec12s", photsys_file=phot_system[filter])|> PyPandasDataFrame |> DataFrame
     end
     return df
 end
@@ -22,7 +22,8 @@ function get_isochrone(family::Symbol, filter::String, age::NTuple{3,Number}, me
     @assert  5≤log10(age[1]) && log10(age[2])≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
     @assert -2.2<metal[1] && metal[2]≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
     println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
-        df = ezpadova.get_isochrones(age_yr=age, MH=metal,model="parsec12s", phot=filter)|> PyPandasDataFrame |> DataFrame
+        df = ezpadova.get_isochrones(age_yr=age, MH=metal,model="parsec12s",
+        photsys_file=phot_system[filter])|> PyPandasDataFrame |> DataFrame
     return df
 end
 
@@ -33,7 +34,7 @@ function interpolate_isochrone(family, filter, age, metal)
         if(family==:parsec)
                 @assert 5≤log10(age)≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
                 @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
-                if(filter=="YBC_hsc")
+                if(filter=="hsc")
                         file_artif = "artifacts/isochrones/parsec/$filter/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
                         df_artif = DataFrame(CSV.File(file_artif, delim=" ", ignorerepeated=true, comment="#"))
                         return interpolate_isochrone(df_artif, age, metal)

@@ -34,6 +34,7 @@ module IntrospectiveStreams
         os.environ["SSL_CERT_FILE"] = "/etc/ssl/certs/ca-certificates.crt"
     end
 
+
     export  u,
             coord,
             at,
@@ -95,6 +96,7 @@ module IntrospectiveStreams
 
 
 
+    include("config.jl")
     include("methods/extinctions.jl")
     include("methods/transformations.jl")
     include("methods/filters.jl")

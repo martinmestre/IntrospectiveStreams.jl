@@ -48,22 +48,22 @@
 #     end
 # end
 
-# @testset "DownloadIsochroneEzParsec" begin
-#     n=4
-#     exp_l = 5
-#     exp_h = 10.3
-#     metal_l = -2.19999
-#     metal_h = 0.5
-#     f_exp(x) = (exp_h-exp_l)*x+exp_l
-#     f_metal(x) = (metal_h-metal_l)*x+metal_l
-#     family, filter = :parsec, "YBC_hsc"
-#     for i ∈ 1:n
-#         age = 10^f_exp(rand())
-#         metal = f_metal(rand())
-#         df_iso = get_isochrone(family, filter, age, metal)
-#         @test typeof(df_iso) == DataFrame
-#     end
-# end
+@testset "DownloadIsochroneEzParsec" begin
+    n=4
+    exp_l = 5
+    exp_h = 10.3
+    metal_l = -2.19999
+    metal_h = 0.5
+    f_exp(x) = (exp_h-exp_l)*x+exp_l
+    f_metal(x) = (metal_h-metal_l)*x+metal_l
+    family, filter = :parsec, "hsc"
+    for i ∈ 1:n
+        age = 10^f_exp(rand())
+        metal = f_metal(rand())
+        df_iso = get_isochrone(family, filter, age, metal)
+        @test typeof(df_iso) == DataFrame
+    end
+end
 
 # @testset "DownloadIsochroneEzParsec Grid dispatch" begin
 #     n=8
@@ -76,7 +76,7 @@
 #     step_metal = (metal_h-metal_l)/n
 #     age = (age_l, age_h, step_age)
 #     metal = (metal_l, metal_h, step_metal)
-#     family, filter = :parsec, "YBC_hsc"
+#     family, filter = :parsec, "hsc"
 #     df_iso = get_isochrone(family, filter, age, metal)
 #     @test typeof(df_iso) == DataFrame
 # end
@@ -89,7 +89,7 @@
     exp_h = 10.3
     metal_l = -2.19999
     metal_h = 0.5
-    family, filter = :parsec, "YBC_hsc"
+    family, filter = :parsec, "hsc"
     for i ∈ 1:n
         age = 10^f_exp(rand())
         metal = f_metal(rand())
