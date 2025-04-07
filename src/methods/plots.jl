@@ -438,7 +438,7 @@ function plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
         size_inches = (3*3, 3*3)
         size_pt = 72 .* size_inches
         fig = Figure(size = size_pt, fontsize = 30)
-        plt = data(df)*mapping(:color=>L"G-R", :gmag =>L"G")*visual(Lines)
+        plt = data(df)*mapping(:color=>L"g-r", :gmag =>L"g")*visual(Lines)
         draw!(fig, plt, axis=(;yreversed=true))
         save(file, fig, pt_per_unit=1)
     else
