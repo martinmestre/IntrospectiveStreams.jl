@@ -39,11 +39,11 @@
 #     metal_h = 0.5
 #     f_exp(x) = (exp_h-exp_l)*x+exp_l
 #     f_metal(x) = (metal_h-metal_l)*x+metal_l
-#     family, filter = :mist, "UBVRIplus"
+#     family, photsys = :mist, "UBVRIplus"
 #     for i ∈ 1:n
 #         age = 10^f_exp(rand())
 #         metal = f_metal(rand())
-#         df_iso = get_isochrone(family, filter, age, metal)
+#         df_iso = download_isochrone(family, photsys, age, metal)
 #         @test typeof(df_iso) == DataFrame
 #     end
 # end
@@ -56,49 +56,49 @@
     metal_h = 0.5
     f_exp(x) = (exp_h-exp_l)*x+exp_l
     f_metal(x) = (metal_h-metal_l)*x+metal_l
-    family, filter = :parsec, "hsc"
+    family, photsys = :parsec, "hsc"
     for i ∈ 1:n
         age = 10^f_exp(rand())
         metal = f_metal(rand())
-        df_iso = get_isochrone(family, filter, age, metal)
+        df_iso = download_isochrone(family, photsys, age, metal)
         @test typeof(df_iso) == DataFrame
     end
 end
 
-# @testset "DownloadIsochroneEzParsec Grid dispatch" begin
-#     n=8
-#     exp_l = 5
-#     exp_h = 10.3
-#     age_l, age_h = 10.0.^(exp_l, exp_h)
-#     metal_l = -2.19999
-#     metal_h = 0.5
-#     step_age = (age_h-age_l)/n
-#     step_metal = (metal_h-metal_l)/n
-#     age = (age_l, age_h, step_age)
-#     metal = (metal_l, metal_h, step_metal)
-#     family, filter = :parsec, "hsc"
-#     df_iso = get_isochrone(family, filter, age, metal)
-#     @test typeof(df_iso) == DataFrame
-# end
-
-
-
-@testset "InterpolateParsecIsochrone" begin
-    n = 1
+@testset "DownloadIsochroneEzParsec Grid dispatch" begin
+    n=8
     exp_l = 5
     exp_h = 10.3
+    age_l, age_h = 10.0.^(exp_l, exp_h)
     metal_l = -2.19999
     metal_h = 0.5
-    family, filter = :parsec, "hsc"
-    for i ∈ 1:n
-        age = 10^f_exp(rand())
-        metal = f_metal(rand())
-        df_iso = get_isochrone(family, filter, age, metal)
-        df_intp = interpolate_isochrone(family, filter, age, metal)
-        @test df_intp.Mini ≈ df_iso.Min rtol=1.e-5
-        @test df_intp.MH ≈ df_iso.MH rtol=1.e-5
-        @test df_intp.logAge ≈ df_iso.logAge rtol=1.e-5
-        @test df_intp ≈ df_iso rtol=1.e-5 # This includes the above comparison per field and more.
-    end
+    step_age = (age_h-age_l)/n
+    step_metal = (metal_h-metal_l)/n
+    age = (age_l, age_h, step_age)
+    metal = (metal_l, metal_h, step_metal)
+    family, photsys = :parsec, "hsc"
+    df_iso = download_isochrone(family, photsys, age, metal)
+    @test typeof(df_iso) == DataFrame
 end
+
+
+
+# @testset "InterpolateParsecIsochrone" begin
+#     n = 1
+#     exp_l = 5
+#     exp_h = 10.3
+#     metal_l = -2.19999
+#     metal_h = 0.5
+#     family, photsys = :parsec, "hsc"
+#     for i ∈ 1:n
+#         age = 10^f_exp(rand())
+#         metal = f_metal(rand())
+#         df_iso = download_isochrone(family, photsys, age, metal)
+#         df_intp = interpolate_isochrone(family, photsys, age, metal)
+#         @test df_intp.Mini ≈ df_iso.Min rtol=1.e-5
+#         @test df_intp.MH ≈ df_iso.MH rtol=1.e-5
+#         @test df_intp.logAge ≈ df_iso.logAge rtol=1.e-5
+#         @test df_intp ≈ df_iso rtol=1.e-5 # This includes the above comparison per field and more.
+#     end
+# end
 

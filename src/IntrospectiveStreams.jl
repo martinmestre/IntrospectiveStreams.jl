@@ -49,8 +49,6 @@ module IntrospectiveStreams
             correct_extinction_Gaia_loop,
             curation!,
             load_stream_track,
-            get_isochrone,
-            interpolate_isochrone,
             compute_in_self_coords!,
             mask_gc!,
             filter_cmd!,
@@ -64,9 +62,10 @@ module IntrospectiveStreams
             reflex_correct!,
             reflex_correct_steps!,
             clean_xmatch!,
-            z2feh_mist, z2feh_parsec, feh2z_mist, feh2z_parsec
-
-
+            z2feh_mist, z2feh_parsec,
+            feh2z_mist, feh2z_parsec,
+            download_isochrone,
+            interpolate_isochrone
 
     export  plot_histog_on_sky,
             plot_histog_on_sky_with_gc,
@@ -96,7 +95,7 @@ module IntrospectiveStreams
 
 
 
-    include("config.jl")
+
     include("methods/extinctions.jl")
     include("methods/transformations.jl")
     include("methods/filters.jl")

@@ -105,16 +105,7 @@ function find_nearest_isochrones(df, target_age, target_metallicity)
 end
 
 
-# Función para interpolar en masa inicial para una isócrona específica
-function interpolate_in_initial_mass(iso, initial_mass)
-    # Ordenar por masa inicial
-    sort!(iso, :Mini)
 
-    # Crear el interpolador en masa inicial
-    itp = LinearInterpolation(iso.Mini, iso.magnitude, extrapolation_bc=Line())
-
-    return itp(initial_mass)
-end
 
 
 

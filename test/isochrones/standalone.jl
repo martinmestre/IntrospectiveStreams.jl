@@ -5,6 +5,17 @@ using CairoMakie
 using AlgebraOfGraphics
 using Statistics  # Para usar var()
 
+
+"""
+    load_isochrone_data(filepath::String)
+
+Load isochrone data from a file.
+"""
+function load_isochrone_data(filepath::String)
+    df = DataFrame(CSV.File(filepath, delim=" ", ignorerepeated=true, comment="#", silencewarnings=true))
+    return df
+end
+
 """Remove columns with any missing value."""
 function eliminar_columnas_con_missing!(df::DataFrame)
     n_antes = ncol(df)
@@ -68,6 +79,24 @@ function _get_interp_points(iso::DataFrame)
 end
 
 """
+    interpolate_isochrone(family::Symbol, filter::String, age::Real, metal::Real)
+
+High-level interface to interpolate isochrones from the PARSEC database.
+"""
+function interpolate_isochrone(family::Symbol, filter::String, age::Real, metal::Real)
+    @assert family == :parsec "Only PARSEC isochrones are currently supported"
+    @assert 9.2 ≤ log10(age) ≤ 10.3 "Age should fulfill: 9.2 ≤ log10(age) ≤ 10.3"
+    @assert -2.2 < metal ≤ 0.5 "Metallicity should satisfy: -2.2 < [Fe/H] ≤ 0.5"
+
+    if filter == "hsc"
+        file_artif = "artifacts/isochrones/parsec/$filter/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+        df_artif = load_isochrone_data(file_artif)
+        return interpolate_isochrone(df_artif, age, metal)
+    else
+        error("Filter $filter not implemented")
+    end
+end
+"""
     interpolate_isochrone(df::DataFrame, target_age::Real, target_metallicity::Real)
 
 Interpolate isochrones at given (age, metallicity) from a DataFrame of PARSEC isochrones.
@@ -124,7 +153,7 @@ function interpolate_isochrone(df::DataFrame, target_age::Real, target_metallici
 
     # --- 4. Interpolación por propiedad ---
     all_points = vcat(interp_points...)
-    phases = range(0, 9, length=100)
+    phases = range(0, 9, length=1000)
     query_points = hcat(
         fill(target_logAge, length(phases)),
         fill(target_metallicity, length(phases)),
@@ -161,15 +190,7 @@ function interpolate_isochrone(df::DataFrame, target_age::Real, target_metallici
 end
 
 
-"""
-    load_isochrone_data(filepath::String)
 
-Load isochrone data from a file.
-"""
-function load_isochrone_data(filepath::String)
-    df = DataFrame(CSV.File(filepath, delim=" ", ignorerepeated=true, comment="#", silencewarnings=true))
-    return df
-end
 
 """
     plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
@@ -177,108 +198,27 @@ end
 Plot the isochrone in CMD space for the specified telescope.
 """
 function plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
-    # Filter data where label <= 5 (main evolutionary phases)
-    df_filtered = filter(row -> row.label ≤ 5, df)
+    # Configuración básica del gráfico
+    fig = Figure(resolution=(800, 600))
+    ax = Axis(fig[1, 1],
+              xlabel="G - R",
+              ylabel="G",
+              title="Isochrone CMD")
 
-    size_inches = (3 * 3, 3 * 3)
-    size_pt = 72 .* size_inches
-    fig = Figure(size=size_pt, fontsize=30)
+    # Mapeo simple de colores por fase evolutiva
+    colors = cgrad(:viridis, length(unique(df.label)), categorical=true)
 
-    # Discrete color palette
-    discrete_colors = :tab10
-
-    if telescope == :Gaia
-        df_filtered.color = df_filtered."BP-RP"
-        plt = data(df_filtered) *
-              mapping(:color => L"BP-RP", :Gaia_G_EDR3 => L"G") *
-              visual(Lines)
-        draw!(fig, plt, axis=(; yreversed=true))
-
-    elseif telescope == :Subaru
-        df_filtered.color = df_filtered.gmag - df_filtered.rmag
-
-        # Map labels to phase names
-        phase_names = Dict(1=>"MS", 2=>"SGB", 3=>"RGB", 4=>"HeB", 5=>"EAGB")
-        df_filtered.phase = [get(phase_names, l, "Other") for l in df_filtered.label]
-
-        plt = data(df_filtered) *
-              mapping(:color => L"g-r", :gmag => L"g",
-                     color=:phase => "Evolutionary Phase",
-                     linestyle=:phase) *
-              visual(Lines, linewidth=2)
-
-        draw!(fig, plt,
-              axis=(; yreversed=true),
-              legend=(position=:right, titleposition=:left),
-              theme=Theme(palette=(color=discrete_colors,)))
-    else
-        error("Telescope $telescope not supported for CMD plot.")
+    # Graficar cada fase evolutiva por separado
+    for (i, label) in enumerate(sort(unique(df.label)))
+        subset = df[df.label .== label, :]
+        lines!(ax, subset.gmag - subset.rmag, subset.gmag,
+               color=colors[i], label="Phase $label")
     end
 
-    save(file, fig, pt_per_unit=1)
+    # Leyenda y guardado
+    Legend(fig[1, 2], ax)
+    save(file, fig)
     return fig
-end
-function plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
-    # Filtrar datos para las principales fases evolutivas
-    df_filtered = filter(row -> row.label ≤ 5, df)
-
-    size_inches = (3 * 3, 3 * 3)
-    size_pt = 72 .* size_inches
-    fig = Figure(size=size_pt, fontsize=30)
-
-    if telescope == :Gaia
-        df_filtered.color = df_filtered."BP-RP"
-        plt = data(df_filtered) *
-              mapping(:color => L"BP-RP", :Gaia_G_EDR3 => L"G") *
-              visual(Lines)
-
-        draw!(fig, plt; axis=(; yreversed=true))
-
-    elseif telescope == :Subaru
-        df_filtered.color = df_filtered.gmag - df_filtered.rmag
-
-        # Mapeo de etiquetas a nombres de fase
-        phase_names = Dict(1=>"MS", 2=>"SGB", 3=>"RGB", 4=>"HeB", 5=>"EAGB")
-        df_filtered.phase = [get(phase_names, l, "Other") for l in df_filtered.label]
-
-        plt = data(df_filtered) *
-              mapping(:color => L"g-r", :gmag => L"g",
-                     color=:phase => "Evolutionary Phase",
-                     linestyle=:phase) *
-              visual(Lines, linewidth=2)
-
-        # Versión corregida del draw! sin los keywords no soportados
-        draw!(fig, plt;
-              axis=(; yreversed=true),
-              facet=(; linkaxes=:none))  # Ejemplo de parámetro soportado
-
-        # Añadir leyenda manualmente si es necesario
-        Legend(fig[1, end+1], fig.current_axis)
-
-    else
-        error("Telescope $telescope not supported for CMD plot.")
-    end
-
-    save(file, fig, pt_per_unit=1)
-    return fig
-end
-"""
-    interpolate_isochrone(family::Symbol, filter::String, age::Real, metal::Real)
-
-High-level interface to interpolate isochrones from the PARSEC database.
-"""
-function interpolate_isochrone(family::Symbol, filter::String, age::Real, metal::Real)
-    @assert family == :parsec "Only PARSEC isochrones are currently supported"
-    @assert 9.2 ≤ log10(age) ≤ 10.3 "Age should fulfill: 9.2 ≤ log10(age) ≤ 10.3"
-    @assert -2.2 < metal ≤ 0.5 "Metallicity should satisfy: -2.2 < [Fe/H] ≤ 0.5"
-
-    if filter == "hsc"
-        file_artif = "artifacts/isochrones/parsec/$filter/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
-        df_artif = load_isochrone_data(file_artif)
-        return interpolate_isochrone(df_artif, age, metal)
-    else
-        error("Filter $filter not implemented")
-    end
 end
 
 """
@@ -287,12 +227,12 @@ end
 Example usage with Subaru HSC filters.
 """
 function example_interpolate_isochrone()
-    filter = "hsc"
-    file_artif = "artifacts/isochrones/parsec/$filter/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+    camera = "hsc"
+    file_artif = "artifacts/isochrones/parsec/$camera/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
     df_artif = load_isochrone_data(file_artif)
 
-    file_plot = "plots/isochrone_$filter.pdf"
-    target_age = 10.0^9.8
+    file_plot = "plots/isochrone_$camera.pdf"
+    target_age = 10.0^9.5
     target_metallicity = 0.0  # Solar metallicity
 
     # Interpolate and plot
@@ -301,3 +241,4 @@ function example_interpolate_isochrone()
 
     return fig
 end
+
