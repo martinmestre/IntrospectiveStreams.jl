@@ -107,5 +107,47 @@ end
 
 
 
+function read_parsec_file(filename)
+    # Leer todas las líneas para procesar los comentarios
+    lines = readlines(filename)
+
+    # Buscar la última línea de comentario que parece contener nombres de columnas
+    header_line = ""
+    data_start = 0
+
+    for (i, line) in enumerate(lines)
+        if startswith(line, "#")
+            # Eliminamos el # y espacios iniciales
+            content = strip(replace(line, r"^#\s*" => ""))
+            # Si la línea contiene al menos 3 palabras, asumimos que es el encabezado
+            if length(split(content)) >= 3
+                header_line = content
+            end
+        elseif data_start == 0
+            data_start = i
+            break  # Salimos al encontrar la primera línea de datos
+        end
+    end
+
+    if isempty(header_line)
+        error("No se encontró línea de encabezado válida en el archivo")
+    end
+
+    # Procesar los nombres de columnas
+    column_names = split(header_line)
+
+    # Leer los datos
+    df = CSV.read(filename, DataFrame;
+                delim=' ',
+                ignorerepeated=true,
+                comment="#",  # Ahora como String
+                header=false,
+                skipto=data_start)
+
+    # Asignar nombres de columnas (solo hasta el número de columnas disponibles)
+    rename!(df, Symbol.(column_names[1:min(end, ncol(df))]))
+
+    return df
+end
 
 
