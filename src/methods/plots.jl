@@ -426,23 +426,34 @@ function plot_histog_cmd(df::DataFrame, file::String)
 end
 
 """Plot single isochrone."""
-function plot_isochrone_cmd(df::DataFrame, telescope::Symbol, file::String)
-    if telescope == :Gaia
+function plot_isochrone_cmd(df::DataFrame, photsys::Symbol, file::String)
+    if photsys == :Gaia
         size_inches = (3*3, 3*3)
         size_pt = 72 .* size_inches
         fig = Figure(size = size_pt, fontsize = 30)
         plt = data(df)*mapping(:color=>L"BP-RP", :Gaia_G_EDR3 =>L"G")*visual(Lines)
         draw!(fig, plt, axis=(;yreversed=true))
         save(file, fig, pt_per_unit=1)
-    elseif telescope == :Subaru
+    elseif photsys == :hsc
         size_inches = (3*3, 3*3)
         size_pt = 72 .* size_inches
         fig = Figure(size = size_pt, fontsize = 30)
-        plt = data(df)*mapping(:color=>L"g-r", :gmag =>L"g")*visual(Lines)
-        draw!(fig, plt, axis=(;yreversed=true))
+        # plt = data(df)*mapping(:color=>L"g-r", :gmag =>L"g")*visual(Lines)
+        plt = data(df) *
+            mapping( :color => L"g-r", :gmag => L"g", color = :label) *
+            visual(
+                Lines,linewidth = 1.5,
+                colormap = :tab10  # Discrete color palette for 9 categories
+            )
+
+        # Draw with legend customization
+        draw(plt;
+            axis = (title = "HSC CMD", xlabel = "g-r", ylabel = "g"),
+            legend = (title = "Evolution stages", position = :right)
+        )
         save(file, fig, pt_per_unit=1)
     else
-        error("Telescope $telescope not available for CMD plot.")
+        error("$photsys photometric system not available for CMD plot.")
     end
     return
 end

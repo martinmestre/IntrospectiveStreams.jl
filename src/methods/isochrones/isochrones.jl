@@ -28,14 +28,13 @@ function download_isochrone(family::Symbol, photsys::String, age::NTuple{3,Numbe
 end
 
 "Interpolate isochrones from the previously downloaded data base (artifacts dir)"
-function interpolate_isochrone(family::Symbol, photsys::String, age::T, metal::R; ezpadova_bool::Bool=false)::DataFrame where {T<:Real,R<:Real}
+function interpolate_isochrone(family::Symbol, photsys::Symbol, log_age::T, metal::R; ezpadova_bool::Bool=false)::DataFrame where {T<:Real,R<:Real}
         @assert family == :parsec "Only Parsec isochrones accepted for the moment"
         if(family==:parsec)
-                log_age = log10(age)
-                @assert 9.2≤log_age≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
+                @assert 9.2≤log_age≤10.3 "Age should fulfill: 9.2 ≤ log10(age) ≤ 10.3."
                 @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
-                if(photsys=="hsc")
-                        file_artif = "artifacts/isochrones/parsec/$photsys/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+                if(photsys==:hsc)
+                        file_artif = "artifacts/isochrones/parsec/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
                         if ezpadova_bool
                             quickiso =  ezpadova.QuickInterpolator(file_artif)
                             return quickiso(log_age, metal) |> PyPandasDataFrame |> DataFrame

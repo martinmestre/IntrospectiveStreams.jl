@@ -1,16 +1,15 @@
 """Example of isocrhone interpolation"""
 function example_interpolate_isochrone()
-    filter="hsc"
-    file_artif = "artifacts/isochrones/parsec/$filter/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
-    df_artif = DataFrame(CSV.File(file_artif, delim=" ", ignorerepeated=true, comment="#"))
-    file_plot = "test/plots/isochrone_$filter.pdf"
-    target_age = 10.0^9.8 # age (linear)
-    target_metallicity = 0.0  # Metalicidad deseada
+    family = :parsec
+    photsys= :hsc
+    file_plot = "plots/examples/isochrone_$(family)_$(photsys).pdf"
+    log_age = 9.5 # log10(age)
+    metal = 0.0  # Metallicity
 
-    # Generar la isócrona completa
-    isochrone_df = interpolate_isochrone(df_artif, target_age, target_metallicity)
+    # Generate isochrone
+    isochrone_df = interpolate_isochrone(family, photsys, log_age, metal; ezpadova_bool=true)
     isochrone_df.color = isochrone_df.gmag - isochrone_df.rmag
-    plot_isochrone_cmd(isochrone_df, :Subaru, file_plot)
+    plot_isochrone_cmd(isochrone_df, photsys, file_plot)
     println("Isócrona completa")
     return isochrone_df
 end
