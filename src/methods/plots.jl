@@ -435,22 +435,23 @@ function plot_isochrone_cmd(df::DataFrame, photsys::Symbol, file::String)
         draw!(fig, plt, axis=(;yreversed=true))
         save(file, fig, pt_per_unit=1)
     elseif photsys == :hsc
-        size_inches = (3*3, 3*3)
-        size_pt = 72 .* size_inches
-        fig = Figure(size = size_pt, fontsize = 30)
-        # plt = data(df)*mapping(:color=>L"g-r", :gmag =>L"g")*visual(Lines)
-        plt = data(df) *
-            mapping( :color => L"g-r", :gmag => L"g", color = :label) *
-            visual(
-                Lines,linewidth = 1.5,
-                colormap = :tab10  # Discrete color palette for 9 categories
-            )
+        # Set figure size (9x9 inches converted to points)
+        size_pt = 72 .* (12, 12)
+        fig = Figure(size=size_pt, fontsize=30)
 
-        # Draw with legend customization
-        draw(plt;
-            axis = (title = "HSC CMD", xlabel = "g-r", ylabel = "g"),
-            legend = (title = "Evolution stages", position = :right)
-        )
+
+        # Create the plot with proper mappings
+        plt = data(df) *
+            mapping(:color => L"g-r", :gmag => L"g", color=:label=>"Evolution")*
+            visual(Lines, linewidth=1)#, markersize=5)
+        # Draw the plot with axis settings
+        grid=draw!(fig, plt,scales(Color = (; palette = :Set1_9)),
+                   axis=(title="$(photsys) CMD", xlabel="g-r", ylabel="g", yreversed=true))
+        legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+#
+
+
+        # Save the figure
         save(file, fig, pt_per_unit=1)
     else
         error("$photsys photometric system not available for CMD plot.")
