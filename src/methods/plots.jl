@@ -438,19 +438,29 @@ function plot_isochrone_cmd(df::DataFrame, photsys::Symbol, file::String)
         # Set figure size (9x9 inches converted to points)
         size_pt = 72 .* (12, 12)
         fig = Figure(size=size_pt, fontsize=30)
-
-
         # Create the plot with proper mappings
         plt = data(df) *
             mapping(:color => L"g-r", :gmag => L"g", color=:label=>"Evolution")*
-            visual(Lines, linewidth=1)#, markersize=5)
+            visual(Lines, linewidth=2)#, markersize=5)
         # Draw the plot with axis settings
         grid=draw!(fig, plt,scales(Color = (; palette = :Set1_9)),
                    axis=(title="$(photsys) CMD", xlabel="g-r", ylabel="g", yreversed=true))
         legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
-#
+        # Save the figure
+        save(file, fig, pt_per_unit=1)
 
-
+    elseif photsys == :decam
+        # Set figure size (9x9 inches converted to points)
+        size_pt = 72 .* (12, 12)
+        fig = Figure(size=size_pt, fontsize=30)
+        # Create the plot with proper mappings
+        plt = data(df) *
+            mapping(:color => L"g-r", :gmag => L"g", color=:label=>"Evolution")*
+            visual(Scatter, markersize=5)
+        # Draw the plot with axis settings
+        grid=draw!(fig, plt,scales(Color = (; palette = :Set1_9)),
+                   axis=(title="$(photsys) CMD", xlabel="g-r", ylabel="g", yreversed=true))
+        legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
         # Save the figure
         save(file, fig, pt_per_unit=1)
     else

@@ -4,7 +4,7 @@ module IntrospectiveStreams
     @reexport using DataFrames, DataFramesMeta
     using StaticArrays
     using FITSIO
-    @reexport using CSV
+    @reexport using CSV, JLD2
     using Interpolations
     @reexport using CairoMakie, AlgebraOfGraphics
     # using ElectronDisplay
@@ -61,10 +61,12 @@ module IntrospectiveStreams
             filter_box_on_μ_plane!,
             reflex_correct!,
             reflex_correct_steps!,
-            clean_xmatch!,
-            z2feh_mist, z2feh_parsec,
+            clean_xmatch!
+
+    export  z2feh_mist, z2feh_parsec,
             feh2z_mist, feh2z_parsec,
             download_isochrone,
+            build_isochrone_grid,
             interpolate_isochrone
 
     export  plot_histog_on_sky,
