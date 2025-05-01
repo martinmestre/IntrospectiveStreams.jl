@@ -7,13 +7,13 @@ function download_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; a
     age_yr = 1e9*age
     if(family==:mist)
         @assert -4≤metal≤0.5 "Metallicity should satisfy: -4 ≤ FeH ≤ 0.5 (FeH≈MH)."
-        @assert 5≤log10(age_yr)≤10.3 "Age should fulfill: 5 ≤ log10(age) ≤ 10.3."
+        @assert 5≤log10(age_yr)≤10.3 "Age should fulfill: 5 ≤ log10(age_yr) ≤ 10.3."
         println("Note that MIST uses metallicity [FeH] (not Z abundance).")
         df = ezmist.get_one_isochrone(age=age_yr, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
                     output=string(photsys), Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
-        @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
+        @assert -2.2≤metal≤0.5 "Metallicity should satisfy: -2.2 ≤ FeH ≤ 0.5 (FeH≈MH)."
         @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
         println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
         df = ezpadova.get_isochrones(age_yr=(age_yr, age_yr, 0), MH=(metal, metal, 0),
@@ -28,10 +28,10 @@ Download grid of stellar isochrones.
 [age] = Gyr.
 """
 function download_isochrone(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R})::DataFrame where {T<:Real, R<:Real}
-    age_yr = 1e9*age
+    age_yr = 1e9 .*age
     @assert family==:parsec
-    @assert -2.2<metal[1] && metal[2]≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
-    @assert 0≤age[1] && age[2]≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
+    @assert -2.2≤metal[1] && metal[2]≤0.5 "Metallicity should satisfy: -2.2 ≤ FeH ≤ 0.5 (FeH≈MH)."
+    @assert 1e-9≤age[1] && age[2]≤13.5 "Age [Gyr] should fulfill: 1e-9 ≤  age [Gyr] ≤ 13.5"
     println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
         df = ezpadova.get_isochrones(age_yr=age_yr, MH=metal,model="parsec12s",
         photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
@@ -54,17 +54,21 @@ function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T},
     mkpath(dirname(file_artif))
     jldopen(file_artif, "a+", compress=true) do file
         for a in range(age[1], age[2], step=age[3])
+            @show a metal
             key_age = "age=$(round(a, digits=1))"
-            df = download_isochrone(family, photsys, (a, a, 0), metal)
+            df = download_isochrone(family, photsys, (a, a, 0.0), metal)
             metal_groups = groupby(df, :MH)
             for sub_df in metal_groups
                 key_MH = "MH=$(round(sub_df.MH[1], digits=2))"
                 key = "$key_age/$key_MH"
+                @show key
                 file[key] = sub_df
             end
-            println("✅ Completed processing for isochrone of $a Gyr")
         end
+        println("✅ Completed process for building isochrone database for $family family
+        and $photsys photometry.")
     end
+    return
 end
 
 
@@ -76,22 +80,27 @@ The corresponding grid of isochrones used in both cases was donwloaded and saved
 function build_isochrone_grid().
 [age] = Gyr.
  """
-function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezpadova_bool::Bool=false)::DataFrame where {T<:Real,R<:Real}
-        @assert family == :parsec "Only Parsec isochrones accepted for the moment"
-        @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
-        @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
+function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezpadova::Bool=false)::DataFrame where {T<:Real,R<:Real}
+    @assert family == :parsec "Only Parsec isochrones accepted for the moment"
+    @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
+    @assert -2.2<metal≤0.5 "Metallicity should satisfy: -2.2 < FeH ≤ 0.5 (FeH≈MH)."
+    dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
+    age_str = "age_$(round(age[1], digits=1))to$(round(age[2], digits=1))"
+    metal_str = "metal_$(round(metal[1], digits=2))to$(round(metal[2], digits=2))"
+    filename = "$(age_str)_$(metal_str).jld2"
+    file_artif = joinpath(dir_path, filename)
 
-        if ezpadova_bool
-            file_artif = "artifacts/isochrones/$(family)/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
-            quickiso =  ezpadova.QuickInterpolator(file_artif)
-            df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
-            df.label .=  string.(Int.(floor.(df.evol))) # Recompute label so as not to have inerpolated value
-            return df
-        else
-            file_artif = "artifacts/isochrones/$(family)/$(photsys)/family_age=$(age[1]):$(age[2])Gyr_MH=$(metal[1]):$(metal[2]).jld2"
-            df_artif = read_parsec_file(file_artif)
-            return find_closest_isochrone(df_artif, age, metal)
-        end
+    if !ezpadova
+        df = find_nearest_isochrone(file_artif, age, metal)
+    else
+        @assert 9.2≤log10(1e9*age)≤10.3 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
+        file_artif = "artifacts/isochrones/$(family)/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+        quickiso =  ezpadova.QuickInterpolator(file_artif)
+        df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
+        df.label .=  string.(Int.(floor.(df.evol))) # Recompute label so as not to have inerpolated value
+    end
+    println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal.")
+    return df
 end
 
 

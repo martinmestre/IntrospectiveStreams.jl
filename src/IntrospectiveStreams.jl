@@ -67,6 +67,7 @@ module IntrospectiveStreams
             feh2z_mist, feh2z_parsec,
             download_isochrone,
             build_isochrone_grid,
+            find_nearest_isochrone,
             interpolate_isochrone
 
     export  plot_histog_on_sky,

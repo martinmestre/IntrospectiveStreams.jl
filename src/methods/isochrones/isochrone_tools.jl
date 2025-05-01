@@ -83,7 +83,7 @@ function find_interval_uniform(A, x)
 end
 
 # Función para encontrar las 4 isócronas más cercanas usando find_interval_uniform
-function find_nearest_isochrones(df, target_age, target_metallicity)
+function find_nearest_isochrones(file_artif::String, age::T, metal::R) where {T<:Real,R<:Real}
     # Mapear la grilla de edad y metalicidad a índices enteros
     unique_ages = sort(unique(df.logAge))
     unique_metallicities = sort(unique(df.MH))
@@ -105,8 +105,11 @@ function find_nearest_isochrones(df, target_age, target_metallicity)
 end
 
 
-
-
+"""
+    read_parsec_file(filename)
+Deprecated use. Now files are saved in JLD2 format instead of CSV.
+It can be use to see the files that ezpadova QuickInterpolator() opens.
+"""
 function read_parsec_file(filename)
     # Leer todas las líneas para procesar los comentarios
     lines = readlines(filename)
