@@ -9,6 +9,7 @@ module IntrospectiveStreams
     @reexport using CairoMakie, AlgebraOfGraphics
     # using ElectronDisplay
     @reexport using PythonCall
+    using Printf
 
     const coord = PythonCall.pynew()
     const u = PythonCall.pynew()
