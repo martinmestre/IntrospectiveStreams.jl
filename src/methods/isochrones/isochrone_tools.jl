@@ -62,48 +62,6 @@ function feh2z_parsec(feh)
         return (1 - yₚ)/( (1 + c) + (x☼/z☼) * 10^(-feh))
 end
 
-function find_interval_uniform(A, x)
-    # Verificar que x esté dentro del rango de A
-    if x < first(A) || x > last(A)
-        error("x está fuera del rango de A. x debe estar en [$(first(A)), $(last(A))].")
-    end
-
-    # Caso especial: x es igual al último elemento de A
-    if x == last(A)
-        return length(A) - 1  # Devuelve el índice del penúltimo elemento
-    end
-
-    # Calcular el paso (espaciado) de la grilla
-    step = (last(A) - first(A)) / (length(A) - 1)
-
-    # Calcular el índice i usando floor
-    i = floor(Int, (x - first(A)) / step) + 1
-
-    return i  # Devuelve el índice calculado
-end
-
-# Función para encontrar las 4 isócronas más cercanas usando find_interval_uniform
-function find_nearest_isochrones(file_artif::String, age::T, metal::R) where {T<:Real,R<:Real}
-    # Mapear la grilla de edad y metalicidad a índices enteros
-    unique_ages = sort(unique(df.logAge))
-    unique_metallicities = sort(unique(df.MH))
-
-    # Encontrar los índices de los nodos más cercanos usando find_interval_uniform
-    age_idx = find_interval_uniform(unique_ages, target_age)
-    metallicity_idx = find_interval_uniform(unique_metallicities, target_metallicity)
-
-    # Obtener las cuatro combinaciones de edad y metalicidad más cercanas
-    age_nodes = unique_ages[age_idx:age_idx+1]
-    metallicity_nodes = unique_metallicities[metallicity_idx:metallicity_idx+1]
-
-    # Crear un DataFrame con las cuatro isócronas más cercanas
-    nearest_isochrones = df[
-        (df.logAge .∈ [age_nodes]) .& (df.MH .∈ [metallicity_nodes]), :
-    ]
-
-    return nearest_isochrones
-end
-
 
 """
     read_parsec_file(filename)
@@ -154,3 +112,31 @@ function read_parsec_file(filename)
 end
 
 
+
+function list_age_metal_keys(filepath)
+    jldopen(filepath, "r") do file
+        # Extraer y convertir las edades
+        grupos = keys(file)
+        edades = parse.(Float64, replace.(grupos, "age=" => ""))
+
+        # Extraer y convertir las metalicidades del primer grupo
+        primer_grupo = file[first(grupos)]
+        subgrupos = keys(primer_grupo)
+        metalicidades = parse.(Float64, replace.(subgrupos, "MH=" => ""))
+
+        return edades, metalicidades
+    end
+end
+
+
+
+# Función para encontrar las 4 isócronas más cercanas usando find_interval_uniform
+function find_nearest_isochrone(file_artif::String, age::T, metal::R) where {T<:Real,R<:Real}
+    age_keys, metal_keys = list_age_metal_keys(file_artif)
+    age_idx = argmin(abs.(age_keys.-age))
+    metal_idx = argmin(abs.(metal_keys.-metal))
+    key_age = @sprintf("age=%0.1f", age_keys[age_idx])
+    key_metal = @sprintf("MH=%+.2f", metal_keys[metal_idx])
+    key = "$key_age/$key_metal"
+    return load(file_artif, key), key
+end

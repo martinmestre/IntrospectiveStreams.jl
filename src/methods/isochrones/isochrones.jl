@@ -80,26 +80,29 @@ The corresponding grid of isochrones used in both cases was donwloaded and saved
 function build_isochrone_grid().
 [age] = Gyr.
  """
-function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezpadova::Bool=false)::DataFrame where {T<:Real,R<:Real}
+function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezbool::Bool=false)::DataFrame where {T<:Real,R<:Real}
     @assert family == :parsec "Only Parsec isochrones accepted for the moment"
     @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
     @assert -2.19<metal≤0.5 "Metallicity should satisfy: -2.19 < FeH ≤ 0.5 (FeH≈MH)."
-    dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
-    age_str = "age_$(round(age[1], digits=1))to$(round(age[2], digits=1))"
-    metal_str = "metal_$(round(metal[1], digits=2))to$(round(metal[2], digits=2))"
-    filename = "$(age_str)_$(metal_str).jld2"
-    file_artif = joinpath(dir_path, filename)
-
-    if !ezpadova
-        df = find_nearest_isochrone(file_artif, age, metal)
+    # dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
+    # age_str = "age_$(round(age[1], digits=1))to$(round(age[2], digits=1))"
+    # metal_str = "metal_$(round(metal[1], digits=2))to$(round(metal[2], digits=2))"
+    # filename = "$(age_str)_$(metal_str).jld2"
+    # file_artif = joinpath(dir_path, filename)
+    file_artif="/home/mmestre/.julia/dev/IntrospectiveStreams/artifacts/isochrones/parsec/hsc/ageGyr_0.1to13.5_metal_-0.19to+0.50.jld2"
+    if !ezbool
+        df, key = find_nearest_isochrone(file_artif, age, metal)
+        println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
     else
         @assert 9.2≤log10(1e9*age)≤10.3 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
         file_artif = "artifacts/isochrones/$(family)/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
         quickiso =  ezpadova.QuickInterpolator(file_artif)
         df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
         df.label .=  string.(Int.(floor.(df.evol))) # Recompute label so as not to have inerpolated value
+        println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using
+        ezpadova's QuickInterpolator.")
     end
-    println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal.")
+
     return df
 end
 
