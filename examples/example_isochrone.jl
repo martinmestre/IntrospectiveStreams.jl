@@ -1,17 +1,9 @@
 """Example of isocrhone interpolation"""
-function example_interpolate_isochrone()
-    family = :parsec
-    photsys= :hsc
+function example_interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R)::DataFrame where {T<:Real,R<:Real}
     file_plot = "plots/examples/isochrone_$(family)_$(photsys).pdf"
-    file_plot_download = "plots/examples/isochrone_$(family)_$(photsys)_download.pdf"
-    log_age = log10(12e9) # log10(age)
-    metal =  z2feh_parsec(0.001) # Metallicity
-    @show metal
-    file_artif = "artifacts/isochrones/parsec/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
-    df_artif = read_parsec_file(file_artif)
-    @show df_artif
-    # Generate isochrone
-    # isochrone_df = interpolate_isochrone(family, photsys, log_age, metal; ezpadova_bool=true)
+    df = interpolate_isochrone(family, photsys, age, metal)
+    df_ezp = interpolate_isochrone(family, photsys, age, metal; ezbool=true)
+    df_dld = download_isochrone(family, photsys, age, metal)
     # isochrone_df.color = isochrone_df.gmag - isochrone_df.rmag
     # plot_isochrone_cmd(isochrone_df, photsys, file_plot)
     download_df = download_isochrone(family, photsys, 10^log_age, metal)
