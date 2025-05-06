@@ -84,12 +84,10 @@ function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R
     @assert family == :parsec "Only Parsec isochrones accepted for the moment"
     @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
     @assert -2.19<metal≤0.5 "Metallicity should satisfy: -2.19 < FeH ≤ 0.5 (FeH≈MH)."
-    # dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
-    # age_str = "age_$(round(age[1], digits=1))to$(round(age[2], digits=1))"
-    # metal_str = "metal_$(round(metal[1], digits=2))to$(round(metal[2], digits=2))"
-    # filename = "$(age_str)_$(metal_str).jld2"
-    # file_artif = joinpath(dir_path, filename)
-    file_artif="/home/mmestre/.julia/dev/IntrospectiveStreams/artifacts/isochrones/parsec/hsc/ageGyr_0.1to13.5_metal_-0.19to+0.50.jld2"
+    dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
+    filename = filter(f -> startswith(f, "age"), readdir(dir_path))[1]
+    file_artif = joinpath(dir_path, filename)
+    @show file_artif
     if !ezbool
         df, key = find_nearest_isochrone(file_artif, age, metal)
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
