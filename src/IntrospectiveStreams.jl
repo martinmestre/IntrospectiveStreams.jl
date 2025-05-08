@@ -67,6 +67,7 @@ module IntrospectiveStreams
     export  z2feh_mist, z2feh_parsec,
             feh2z_mist, feh2z_parsec,
             list_age_metal_keys,
+            remove_age_group,
             download_isochrone,
             build_isochrone_grid,
             find_nearest_isochrone,

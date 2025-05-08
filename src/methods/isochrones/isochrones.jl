@@ -41,8 +41,10 @@ end
 
 """
     build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R}) where {T<:Real, R<:Real}
-Build and save a large grid of isochrones in (age, FeH) plane to be later used by fuction interpolate_isochrone.
+Build and save a large grid of isochrones in (age, FeH) plane to be later used by fuction interpolate_isochrone. Having all the grid in one single file is not possible because the downloading
+may be corrupted in some point.
 [age] = Gyr.
+Multipledispatch option for building database in chunks of age range.
 """
 function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R}) where {T<:Real, R<:Real}
     dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
@@ -70,7 +72,17 @@ function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T},
     end
     return
 end
-
+function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R}, chunk_ids::StepRange{I,I}) where {T<:Real, R<:Real, I<:Integer}
+    age_nodes = collect(age[1]:age[3]:age[2])
+    k = diff(chunk_ids)[1]-1
+    for i ∈ collect(chunk_ids)
+        age_chunk = (age_nodes[i-k], age_nodes[i], age[3])
+        build_isochrone_grid(family, photsys, age_chunk, metal)
+    end
+    println("🔭 Completed full process for building isochrone database for $family family
+    and $photsys photometry in age chunks associated to different files.")
+    return
+end
 
 """
     interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezpadova_bool::Bool=false)::DataFrame where {T<:Real,R<:Real}Interpolate isochrones from the previously downloaded data base (artifacts dir).
