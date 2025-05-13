@@ -112,22 +112,6 @@ function read_parsec_file(filename)
 end
 
 
-
-# function list_age_metal_keys(filepath::String)
-#     jldopen(filepath, "r") do file
-#         # Extraer y convertir las edades
-#         grupos = keys(file)
-#         edades = parse.(Float64, replace.(grupos, "age=" => ""))
-
-#         # Extraer y convertir las metalicidades del primer grupo
-#         primer_grupo = file[first(grupos)]
-#         subgrupos = keys(primer_grupo)
-#         metalicidades = parse.(Float64, replace.(subgrupos, "MH=" => ""))
-
-#         return edades, metalicidades
-#     end
-# end
-
 function list_age_metal_keys(dirpath::String)
     allfiles = filter(!isdir, readdir(dirpath, join=true))
     ages = Float64[]
