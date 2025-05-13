@@ -54,22 +54,28 @@ function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T},
     file_artif = joinpath(dir_path, filename)
 
     mkpath(dirname(file_artif))
-    jldopen(file_artif, "a+", compress=true) do file
-        for a in range(age[1], age[2], step=age[3])
-            @show a metal
+    for a in range(age[1], age[2], step=age[3])
+        key_age = ""
+        jldopen(file_artif, "a+"; compress=true) do file
             key_age = @sprintf("age=%0.1f", a)
             df = download_isochrone(family, photsys, (a, a, 0.0), metal)
+            size_bytes = Base.summarysize(df)
+            println("DataFrame size: $(size_bytes/1024^2) MB")
+            println("Now gouping by metallicity")
             metal_groups = groupby(df, :MH)
-            for sub_df in metal_groups
+            for sub_df_ in metal_groups
+                sub_df = copy(sub_df_)
+                size_bytes = Base.summarysize(sub_df)
                 key_MH = @sprintf("MH=%+.2f", sub_df.MH[1])
                 key = "$key_age/$key_MH"
-                @show key
                 file[key] = sub_df
             end
         end
-        println("✅ Completed process for building isochrone database for $family family
-        and $photsys photometry.")
+        println("Current file size: ", filesize(file_artif) / 1024^2, " MB")
+        println("$key_age saved")
     end
+    println("✅ Completed process for building isochrone database for $family family
+    and $photsys photometry for age = $age.")
     return
 end
 function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R}, chunk_ids::StepRange{I,I}) where {T<:Real, R<:Real, I<:Integer}
@@ -104,8 +110,8 @@ function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R
         df, key = find_nearest_isochrone(file_artif, age, metal)
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
     else
-        @assert 9.2≤log10(1e9*age)≤10.3 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
-        file_artif = "artifacts/isochrones/$(family)/$(photsys)/family_MH_-2.2_0.5_logAge_9.2_10.3.dat"
+        @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
+        file_artif = "artifacts/isochrones/$(family)/$(photsys)/webapi/logAge_9.3to10.14_metal_-2.19to0.5_Niso_390.dat"
         quickiso =  ezpadova.QuickInterpolator(file_artif)
         df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
         df.label .=  string.(Int.(floor.(df.evol))) # Recompute label so as not to have inerpolated value
