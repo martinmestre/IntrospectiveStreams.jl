@@ -113,32 +113,56 @@ end
 
 
 
-function list_age_metal_keys(filepath)
-    jldopen(filepath, "r") do file
-        # Extraer y convertir las edades
-        grupos = keys(file)
-        edades = parse.(Float64, replace.(grupos, "age=" => ""))
+# function list_age_metal_keys(filepath::String)
+#     jldopen(filepath, "r") do file
+#         # Extraer y convertir las edades
+#         grupos = keys(file)
+#         edades = parse.(Float64, replace.(grupos, "age=" => ""))
 
-        # Extraer y convertir las metalicidades del primer grupo
-        primer_grupo = file[first(grupos)]
-        subgrupos = keys(primer_grupo)
-        metalicidades = parse.(Float64, replace.(subgrupos, "MH=" => ""))
+#         # Extraer y convertir las metalicidades del primer grupo
+#         primer_grupo = file[first(grupos)]
+#         subgrupos = keys(primer_grupo)
+#         metalicidades = parse.(Float64, replace.(subgrupos, "MH=" => ""))
 
-        return edades, metalicidades
+#         return edades, metalicidades
+#     end
+# end
+
+function list_age_metal_keys(dirpath::String)
+    allfiles = filter(!isdir, readdir(dirpath, join=true))
+    ages = Float64[]
+    metals = Float64[]
+    file_ids = Int64[]
+    first_file_processed = false
+    for i ∈ eachindex(allfiles)
+        jldopen(allfiles[i], "r") do file
+            # Extraer y convertir las edades
+            grupos = keys(file)
+            append!(ages, parse.(Float64, replace.(grupos, "age=" => "")))
+            append!(file_ids, fill(i, length(grupos)))
+            if !first_file_processed
+                # Extraer y convertir las metalicidades del primer grupo
+                primer_grupo = file[first(grupos)]
+                subgrupos = keys(primer_grupo)
+                metals = parse.(Float64, replace.(subgrupos, "MH=" => ""))
+                first_file_processed = true
+            end
+        end
     end
+    return ages, metals, file_ids, allfiles
 end
 
 
-
 # Función para encontrar las 4 isócronas más cercanas usando find_interval_uniform
-function find_nearest_isochrone(file_artif::String, age::T, metal::R) where {T<:Real,R<:Real}
-    age_keys, metal_keys = list_age_metal_keys(file_artif)
-    age_idx = argmin(abs.(age_keys.-age))
-    metal_idx = argmin(abs.(metal_keys.-metal))
-    key_age = @sprintf("age=%0.1f", age_keys[age_idx])
-    key_metal = @sprintf("MH=%+.2f", metal_keys[metal_idx])
+function find_nearest_isochrone(dirpath::String, age::T, metal::R) where {T<:Real,R<:Real}
+    ages, metals, file_ids, allfiles = list_age_metal_keys(dirpath)
+    age_idx = argmin(abs.(ages.-age))
+    metal_idx = argmin(abs.(metals.-metal))
+    key_age = @sprintf("age=%0.1f", ages[age_idx])
+    key_metal = @sprintf("MH=%+.2f", metals[metal_idx])
     key = "$key_age/$key_metal"
-    return load(file_artif, key), key
+    df = load(allfiles[file_ids[age_idx]], key)
+    return df, key
 end
 
 

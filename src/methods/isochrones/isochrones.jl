@@ -14,7 +14,7 @@ function download_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; a
                     output=string(photsys), Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
         @assert -2.19≤metal≤0.5 "Metallicity should satisfy: -2.19 ≤ FeH ≤ 0.5 (FeH≈MH)."
-        @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
+        @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
         println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
         df = ezpadova.get_isochrones(age_yr=(age_yr, age_yr, 0), MH=(metal, metal, 0),
                         model="parsec12s", photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
@@ -31,7 +31,7 @@ function download_isochrone(family::Symbol, photsys::Symbol, age::NTuple{3,T}, m
     age_yr = 1e9 .*age
     @assert family==:parsec
     @assert -2.19≤metal[1] && metal[2]≤0.5 "Metallicity should satisfy: -2.19 ≤ FeH ≤ 0.5 (FeH≈MH)."
-    @assert 1e-9≤age[1] && age[2]≤13.5 "Age [Gyr] should fulfill: 1e-9 ≤  age [Gyr] ≤ 13.5"
+    @assert 1e-9≤age[1] && age[2]≤14.0 "Age [Gyr] should fulfill: 1e-9 ≤  age [Gyr] ≤ 14.0"
     println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
         df = ezpadova.get_isochrones(age_yr=age_yr, MH=metal,model="parsec12s",
         photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
@@ -100,14 +100,11 @@ function build_isochrone_grid().
  """
 function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezbool::Bool=false)::DataFrame where {T<:Real,R<:Real}
     @assert family == :parsec "Only Parsec isochrones accepted for the moment"
-    @assert 0≤age≤13.5 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 13.5"
+    @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
     @assert -2.19<metal≤0.5 "Metallicity should satisfy: -2.19 < FeH ≤ 0.5 (FeH≈MH)."
-    dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
-    filename = filter(f -> startswith(f, "age"), readdir(dir_path))[1]
-    file_artif = joinpath(dir_path, filename)
-    @show file_artif
+    dirpath = joinpath("artifacts", "isochrones", string(family), string(photsys))
     if !ezbool
-        df, key = find_nearest_isochrone(file_artif, age, metal)
+        df, key = find_nearest_isochrone(dirpath, age, metal)
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
     else
         @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
