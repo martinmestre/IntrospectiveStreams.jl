@@ -426,40 +426,16 @@ function plot_histog_cmd(df::DataFrame, file::String)
 end
 
 """Plot single isochrone."""
-function plot_isochrone_cmd(df::DataFrame, photsys::Symbol, file::String)
-    if photsys == :Gaia
-        df.color = df.bp - df.rp
-        size_inches = (3*3, 3*3)
-        size_pt = 72 .* size_inches
-        fig = Figure(size = size_pt, fontsize = 30)
-        plt = data(df)*mapping(:color=>L"BP-RP", :Gaia_G_EDR3 =>L"G")*visual(Lines)
-        draw!(fig, plt, axis=(;yreversed=true))
-        save(file, fig, pt_per_unit=1)
-    elseif photsys == :hsc
-        df.color = df.gmag - df.rmag
-        size_pt = 72 .* (12, 12)
-        fig = Figure(size=size_pt, fontsize=30)
-        plt = data(df) *
-            mapping(:color => L"g-r", :gmag => L"g", color=:label=>"Evolution")*
-            visual(Lines, linewidth=2)#, markersize=5)
-        grid=draw!(fig, plt,scales(Color = (; palette = :Set1_9)),
-                   axis=(title="$(photsys) CMD", xlabel="g-r", ylabel="g", yreversed=true))
-        legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
-        save(file, fig, pt_per_unit=1)
-    elseif photsys == :decam
-        df.color = df.gmag - df.rmag
-        size_pt = 72 .* (12, 12)
-        fig = Figure(size=size_pt, fontsize=30)
-        plt = data(df) *
-            mapping(:color => L"g-r", :gmag => L"g", color=:label=>"Evolution")*
-            visual(Scatter, markersize=5)
-        grid=draw!(fig, plt,scales(Color = (; palette = :Set1_9)),
-                   axis=(title="$(photsys) CMD", xlabel="g-r", ylabel="g", yreversed=true))
-        legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
-        save(file, fig, pt_per_unit=1)
-    else
-        error("$photsys photometric system not available for CMD plot.")
-    end
+function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol)
+    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    plt = data(df)*mapping(color=>"$(color)", mag =>"$(mag)", color=:label=>"Phase")*
+    visual(Lines,linewidth=2)
+    grid = draw!(fig, plt, scales(Color = (; colormap = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
+    legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+    save(filepath, fig, pt_per_unit=1)
     return
 end
 

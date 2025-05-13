@@ -6,7 +6,7 @@ function example_interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, 
     df_dld = download_isochrone(family, photsys, age, metal)
     colorear!.([df, df_ezp, df_dld], :gmag, :rmag)
 
-    plot_isochrone_cmd([]df, photsys, file_plot)
+    plot_isochrone_cmd(df,  photsys, file_plot)
         download_df.color = download_df.gmag - download_df.rmag
     download_df.label = string.(download_df.label)
     plot_isochrone_cmd(download_df, photsys, file_plot_download)
