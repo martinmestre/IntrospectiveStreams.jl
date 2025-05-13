@@ -144,8 +144,9 @@ function find_nearest_isochrone(dirpath::String, age::T, metal::R) where {T<:Rea
     metal_idx = argmin(abs.(metals.-metal))
     key_age = @sprintf("age=%0.1f", ages[age_idx])
     key_metal = @sprintf("MH=%+.2f", metals[metal_idx])
+    filepath = allfiles[file_ids[age_idx]]
     key = "$key_age/$key_metal"
-    df = load(allfiles[file_ids[age_idx]], key)
+    df = load(filepath, key)
     return df, key
 end
 
