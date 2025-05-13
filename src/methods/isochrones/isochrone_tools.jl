@@ -151,4 +151,7 @@ function find_nearest_isochrone(dirpath::String, age::T, metal::R) where {T<:Rea
 end
 
 
-
+function colorear!(df::DataFrame, mag₁::Symbol, mag₂::Symbol)
+    colname = Symbol("color_"*string(mag₁)[1]*string(mag₂)[1])
+    df[!, colname] = df[!, mag₁] - df[!,mag₂]
+end

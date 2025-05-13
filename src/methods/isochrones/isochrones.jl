@@ -9,17 +9,16 @@ function download_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; a
         @assert -4≤metal≤0.5 "Metallicity should satisfy: -4 ≤ FeH ≤ 0.5 (FeH≈MH)."
         @assert 5≤log10(age_yr)≤10.3 "Age should fulfill: 5 ≤ log10(age_yr) ≤ 10.3."
         println("Note that MIST uses metallicity [FeH] (not Z abundance).")
-        df = ezmist.get_one_isochrone(age=age_yr, FeH=metal, v_div_vcrit=0.0,
+        return ezmist.get_one_isochrone(age=age_yr, FeH=metal, v_div_vcrit=0.0,
                     age_scale=age_scale, output_option="photometry",
                     output=string(photsys), Av_value=0.0).to_pandas()|> PyPandasDataFrame |> DataFrame
     elseif(family==:parsec)
         @assert -2.19≤metal≤0.5 "Metallicity should satisfy: -2.19 ≤ FeH ≤ 0.5 (FeH≈MH)."
         @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
         println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
-        df = ezpadova.get_isochrones(age_yr=(age_yr, age_yr, 0), MH=(metal, metal, 0),
+        return ezpadova.get_isochrones(age_yr=(age_yr, age_yr, 0), MH=(metal, metal, 0),
                         model="parsec12s", photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
     end
-    return df
 end
 
 """
@@ -33,9 +32,8 @@ function download_isochrone(family::Symbol, photsys::Symbol, age::NTuple{3,T}, m
     @assert -2.19≤metal[1] && metal[2]≤0.5 "Metallicity should satisfy: -2.19 ≤ FeH ≤ 0.5 (FeH≈MH)."
     @assert 1e-9≤age[1] && age[2]≤14.0 "Age [Gyr] should fulfill: 1e-9 ≤  age [Gyr] ≤ 14.0"
     println("Note that Parsec uses metallicity [M/H]=[FeH] (using Z needs to modify get_isochrone function).")
-        df = ezpadova.get_isochrones(age_yr=age_yr, MH=metal,model="parsec12s",
-        photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
-    return df
+    return ezpadova.get_isochrones(age_yr=age_yr, MH=metal,model="parsec12s", photsys_file=string(photsys))|> PyPandasDataFrame |> DataFrame
+    return
 end
 
 
@@ -107,7 +105,7 @@ function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R
         df, key = find_nearest_isochrone(dirpath, age, metal)
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
     else
-        @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.3"
+        @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.14"
         file_artif = "artifacts/isochrones/$(family)/$(photsys)/webapi/logAge_9.3to10.14_metal_-2.19to0.5_Niso_390.dat"
         quickiso =  ezpadova.QuickInterpolator(file_artif)
         df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
