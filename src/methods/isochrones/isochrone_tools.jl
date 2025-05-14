@@ -154,4 +154,29 @@ end
 function colorear!(df::DataFrame, mag₁::Symbol, mag₂::Symbol)
     colname = Symbol("color_"*string(mag₁)[1]*string(mag₂)[1])
     df[!, colname] = df[!, mag₁] - df[!,mag₂]
+    return nothing
+end
+
+function get_evolutionary_phase(label::Int)
+    return get(PHASE_MAPPING, label, "Unknown")  # "Unknown" si el label no existe
+end
+
+function categorize_phases!(df::DataFrame, family::Symbol)
+    if family == :parsec
+          phase_map = Dict(
+                0 => "0-PMS",
+                1 => "1-MS",
+                2 => "2-SGB",
+                3 => "3-RGB",
+                4 => "4-CHeB (i)",
+                5 => "5-CHeB (b)",
+                6 => "6-CHeB (r)",
+                7 => "7-EAGB",
+                8 => "8-TPAGB",
+                9 => "9-post-AGB"
+                )
+    end
+    get_evolutionary_phase(label::Int) = get(phase_map, label, "Unknown")
+    df.phase = get_evolutionary_phase.(df.label)
+    return nothing
 end

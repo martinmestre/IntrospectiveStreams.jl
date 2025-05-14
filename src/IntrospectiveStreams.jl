@@ -21,6 +21,7 @@ module IntrospectiveStreams
     const ezpadova = PythonCall.pynew()
     const os = PythonCall.pynew()
 
+    const PKGDIR = normpath(joinpath(@__DIR__, ".."))
 
     function __init__()
         PythonCall.pycopy!(coord,pyimport("astropy.coordinates"))
@@ -69,6 +70,7 @@ module IntrospectiveStreams
             list_age_metal_keys,
             remove_age_group,
             colorear!,
+            categorize_phases!,
             download_isochrone,
             build_isochrone_grid,
             find_nearest_isochrone,

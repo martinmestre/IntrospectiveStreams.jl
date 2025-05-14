@@ -45,7 +45,7 @@ may be corrupted in some point.
 Multipledispatch option for building database in chunks of age range.
 """
 function build_isochrone_grid(family::Symbol, photsys::Symbol, age::NTuple{3,T}, metal::NTuple{3,R}) where {T<:Real, R<:Real}
-    dir_path = joinpath("artifacts", "isochrones", string(family), string(photsys))
+    dir_path = joinpath(PKGDIR, "artifacts", "isochrones", string(family), string(photsys))
     age_str = @sprintf("ageGyr_%.1fto%.1f", age[1], age[2])
     metal_str = @sprintf("metal_%+.2fto%+.2f", metal[1], metal[2])
     filename = "$(age_str)_$(metal_str).jld2"
@@ -98,22 +98,21 @@ function build_isochrone_grid().
  """
 function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R; ezbool::Bool=false)::DataFrame where {T<:Real,R<:Real}
     @assert family == :parsec "Only Parsec isochrones accepted for the moment"
-    @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
     @assert -2.19<metal≤0.5 "Metallicity should satisfy: -2.19 < FeH ≤ 0.5 (FeH≈MH)."
-    dirpath = joinpath("artifacts", "isochrones", string(family), string(photsys))
+    dirpath = joinpath(PKGDIR,"artifacts", "isochrones", string(family), string(photsys))
     if !ezbool
+        @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
         df, key = find_nearest_isochrone(dirpath, age, metal)
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using approximation $key.")
     else
-        @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.2≤log10(age_yr)≤10.14"
-        file_artif = "artifacts/isochrones/$(family)/$(photsys)/webapi/logAge_9.3to10.14_metal_-2.19to0.5_Niso_390.dat"
+        @assert 9.3≤log10(1e9*age)≤10.14 "For ezpadova interpolation age should satisfy 9.3≤log10(age_yr)≤10.14"
+        file_artif = joinpath(dirpath, "webapi","logAge_9.3to10.14_metal_-2.19to0.5_Niso_390.dat")
         quickiso =  ezpadova.QuickInterpolator(file_artif)
         df = quickiso(log(age*1e9), metal) |> PyPandasDataFrame |> DataFrame
-        df.label .=  string.(Int.(floor.(df.evol))) # Recompute label so as not to have inerpolated value
+        df.label .=  Int.(floor.(df.evol)) # Recompute label so as not to have inerpolated value
         println("✅ Isochrone ($family, $photsys) interpolated for age=$age Gyr and MH=$metal using
         ezpadova's QuickInterpolator.")
     end
-
     return df
 end
 

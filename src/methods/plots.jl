@@ -426,17 +426,19 @@ function plot_histog_cmd(df::DataFrame, file::String)
 end
 
 """Plot single isochrone."""
-function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol)
+function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
     filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
-    plt = data(df)*mapping(color=>"$(color)", mag =>"$(mag)", color=:label=>"Phase")*
+    df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
+    plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(mag)", color=:phase=>"Phase")*
     visual(Lines,linewidth=2)
-    grid = draw!(fig, plt, scales(Color = (; colormap = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
+    grid = draw!(fig, plt, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
     save(filepath, fig, pt_per_unit=1)
-    return
+    display(fig)
+    return nothing
 end
 
 
