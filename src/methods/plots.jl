@@ -471,7 +471,7 @@ function plot_isochrone_cmd(
     only::Vector{T}=Int[],
 ) where {T<:Integer}
 
-    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    filepath = "plots/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
     size_inches = (9, 9)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
@@ -507,6 +507,6 @@ function plot_isochrone_cmd(
     )
 
     save(filepath, fig, pt_per_unit = 1)
-    return nothing
+    return fig
 end
 
