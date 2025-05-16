@@ -437,9 +437,76 @@ function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag:
     grid = draw!(fig, plt, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
     save(filepath, fig, pt_per_unit=1)
-    display(fig)
     return nothing
 end
 
+function plot_isochrone_cmd(df_array::Vector{DataFrame}, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
+    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    # Definir ejes comunes ANTES del bucle
+    ax_kwargs = (; title = "$(photsys) CMD",
+              yreversed = true,
+              xlabel = string(color),
+              ylabel = string(mag), limits = (0, 5, 0, 17))
+    local grid
+    for df in df_array
+        df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
+        plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(mag)", color=:phase=>"Phase")*
+        visual(Lines,linewidth=2)
+        grid = draw!(fig, plt, axis = ax_kwargs, scales(Color = (; palette = :Set1_9)))
+    end
+    legend!(fig[1,2], grid; position=:right, titleposition=:top, framevisible=true, padding=5)
+    save(filepath, fig, pt_per_unit=1)
+    return nothing
+end
 
+function plot_isochrone_cmd(
+    df_array::Vector{DataFrame},
+    family::Symbol,
+    photsys::Symbol,
+    mag::Symbol,
+    color::Symbol;
+    only::Vector{T}=Int[],
+) where {T<:Integer}
+
+    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (9, 9)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+
+    # Crear eje explícito
+    ax = Axis(fig[1, 1];
+        title = "$(photsys) CMD",
+        yreversed = true,
+        xlabel = string(color),
+        ylabel = string(mag),
+    )
+    estilo = [:solid, :dot, :dash]
+    grosor = [1, 3, 1]
+    # Acumular plots
+    plt_total = nothing
+    for (i, df) in enumerate(df_array)
+        df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
+        plt = data(df_view) *
+              mapping(color => string(color), mag => string(mag), color = :phase => "Phase") *
+              visual(Lines, linewidth = grosor[i], linestyle= estilo[i])
+        plt_total = isnothing(plt_total) ? plt : plt_total + plt
+    end
+
+    # Dibujar sobre el eje existente y pasar paleta directamente
+    sc = scales(Color = (; palette = :Set1_9))
+    grid = draw!(ax, plt_total, sc)
+    # Leyenda en la columna de la derecha
+    legend!(fig[1, 2], grid;
+        position = :right,
+        titleposition = :top,
+        framevisible = true,
+        padding = 5,
+    )
+
+    save(filepath, fig, pt_per_unit = 1)
+    return nothing
+end
 
