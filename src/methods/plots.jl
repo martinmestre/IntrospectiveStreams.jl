@@ -440,28 +440,7 @@ function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag:
     return nothing
 end
 
-function plot_isochrone_cmd(df_array::Vector{DataFrame}, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
-    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
-    size_inches = (3*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 30)
-    # Definir ejes comunes ANTES del bucle
-    ax_kwargs = (; title = "$(photsys) CMD",
-              yreversed = true,
-              xlabel = string(color),
-              ylabel = string(mag), limits = (0, 5, 0, 17))
-    local grid
-    for df in df_array
-        df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
-        plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(mag)", color=:phase=>"Phase")*
-        visual(Lines,linewidth=2)
-        grid = draw!(fig, plt, axis = ax_kwargs, scales(Color = (; palette = :Set1_9)))
-    end
-    legend!(fig[1,2], grid; position=:right, titleposition=:top, framevisible=true, padding=5)
-    save(filepath, fig, pt_per_unit=1)
-    return nothing
-end
-
+"""This function works, but the legend is not publish quality."""
 function plot_isochrone_cmd(
     df_array::Vector{DataFrame},
     family::Symbol,
@@ -471,7 +450,7 @@ function plot_isochrone_cmd(
     only::Vector{T}=Int[],
 ) where {T<:Integer}
 
-    filepath = "src/tex/figures/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
     size_inches = (9, 9)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
@@ -481,7 +460,7 @@ function plot_isochrone_cmd(
         title = "$(photsys) CMD",
         yreversed = true,
         xlabel = string(color),
-        ylabel = string(mag),
+        ylabel = string(mag)
     )
     estilo = [:solid, :dot, :dash]
     grosor = [1, 3, 1]
@@ -506,7 +485,52 @@ function plot_isochrone_cmd(
         padding = 5,
     )
 
-    save(filepath, fig, pt_per_unit = 1)
-    return fig
+    # save(filepath, fig, pt_per_unit = 1)
+    return fig, filename
+end
+
+function plot_isochrone_cmd(
+    df_array::Vector{DataFrame},
+    algorithm::Vector{Symbol},
+    family::Symbol,
+    photsys::Symbol,
+    mag::Symbol,
+    color::Symbol;
+    only::Vector{T}=Int[],
+) where {T<:Integer}
+
+    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (9, 9)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+
+    df_merged = vcat([transform(df[:, [mag, color, :phase, :label]],
+    [] => (() -> algo) => :algorithm)
+    for (df, algo) in zip(df_array, algorithm)]...)
+    df_only = isempty(only) ? df : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
+    df_only.n_algo = [enumerate_algos(df_only.algorithm[i]) for i ∈ 1:nrow(df_only)]
+
+    println(typeof(df_only.n_algo))
+    println(sum(ismissing.(df_only.n_algo)))
+    spec = data(df_only) *
+            mapping(color, mag, color = :phase, linestyle=:algorithm) *
+            visual(Lines)
+
+
+
+    # Dibujar sobre el eje existente y pasar paleta directamente
+    sc = scales(; Color = (; palette = :Set1_9))
+    grid = draw!(fig[1,1], spec, sc)
+
+    # Leyenda en la columna de la derecha
+    legend!(fig[1, 2], grid;
+        position = :right,
+        titleposition = :top,
+        framevisible = true,
+        padding = 5,
+    )
+
+    # save(filepath, fig, pt_per_unit = 1)
+    return fig, filename
 end
 

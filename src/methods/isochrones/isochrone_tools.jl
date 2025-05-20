@@ -180,3 +180,16 @@ function categorize_phases!(df::DataFrame, family::Symbol)
     df.phase = get_evolutionary_phase.(df.label)
     return nothing
 end
+
+function enumerate_algos(algo::Symbol)::Int64
+    if algo == :istreams
+        n = 1
+    elseif algo == :download
+        n= 2
+    elseif algo == :ezpadova
+        n = 3
+    else
+        n = 0
+    end
+    return Int64(n)
+end
