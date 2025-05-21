@@ -427,7 +427,7 @@ end
 
 """Plot single isochrone."""
 function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
-    filepath = "plots/examples/isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
@@ -436,8 +436,7 @@ function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag:
     visual(Lines,linewidth=2)
     grid = draw!(fig, plt, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
-    save(filepath, fig, pt_per_unit=1)
-    return nothing
+    return fig, filename
 end
 
 """This function works, but the legend is not publish quality."""
@@ -485,7 +484,6 @@ function plot_isochrone_cmd(
         padding = 5,
     )
 
-    # save(filepath, fig, pt_per_unit = 1)
     return fig, filename
 end
 
@@ -509,17 +507,18 @@ function plot_isochrone_cmd(
     for (df, algo) in zip(df_array, algorithm)]...)
     df_only = isempty(only) ? df : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
     df_only.n_algo = [enumerate_algos(df_only.algorithm[i]) for i ∈ 1:nrow(df_only)]
+    println(df_only)
 
     println(typeof(df_only.n_algo))
     println(sum(ismissing.(df_only.n_algo)))
     spec = data(df_only) *
-            mapping(color, mag, color = :phase, linestyle=:algorithm, linewidth=:algorithm) *
+            mapping(color, mag, color = :phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
             visual(Lines)
 
 
 
     # Dibujar sobre el eje existente y pasar paleta directamente
-    sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 3, 5]))
+    sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 4, 1]), LineStyle=(; palette = [:solid, :dot, :dash]))
     grid = draw!(fig[1,1], spec, sc; axis=(;yreversed = true))
 
     # Leyenda en la columna de la derecha
@@ -527,7 +526,7 @@ function plot_isochrone_cmd(
         position = :right,
         titleposition = :top,
         framevisible = true,
-        padding = 5,
+        padding = 5
     )
 
     # save(filepath, fig, pt_per_unit = 1)
