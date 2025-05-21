@@ -499,8 +499,8 @@ function plot_isochrone_cmd(
     only::Vector{T}=Int[],
 ) where {T<:Integer}
 
-    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
-    size_inches = (9, 9)
+    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).png"
+    size_inches = (12, 9)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
 
@@ -513,14 +513,14 @@ function plot_isochrone_cmd(
     println(typeof(df_only.n_algo))
     println(sum(ismissing.(df_only.n_algo)))
     spec = data(df_only) *
-            mapping(color, mag, color = :phase, linestyle=:algorithm) *
+            mapping(color, mag, color = :phase, linestyle=:algorithm, linewidth=:algorithm) *
             visual(Lines)
 
 
 
     # Dibujar sobre el eje existente y pasar paleta directamente
-    sc = scales(; Color = (; palette = :Set1_9))
-    grid = draw!(fig[1,1], spec, sc)
+    sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 3, 5]))
+    grid = draw!(fig[1,1], spec, sc; axis=(;yreversed = true))
 
     # Leyenda en la columna de la derecha
     legend!(fig[1, 2], grid;
