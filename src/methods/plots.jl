@@ -439,53 +439,6 @@ function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag:
     return fig, filename
 end
 
-"""This function works, but the legend is not publish quality."""
-function plot_isochrone_cmd(
-    df_array::Vector{DataFrame},
-    family::Symbol,
-    photsys::Symbol,
-    mag::Symbol,
-    color::Symbol;
-    only::Vector{T}=Int[],
-) where {T<:Integer}
-
-    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
-    size_inches = (9, 9)
-    size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 30)
-
-    # Crear eje explícito
-    ax = Axis(fig[1, 1];
-        title = "$(photsys) CMD",
-        yreversed = true,
-        xlabel = string(color),
-        ylabel = string(mag)
-    )
-    estilo = [:solid, :dot, :dash]
-    grosor = [1, 3, 1]
-    # Acumular plots
-    plt_total = nothing
-    for (i, df) in enumerate(df_array)
-        df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
-        plt = data(df_view) *
-              mapping(color => string(color), mag => string(mag), color = :phase => "Phase") *
-              visual(Lines, linewidth = grosor[i], linestyle= estilo[i])
-        plt_total = isnothing(plt_total) ? plt : plt_total + plt
-    end
-
-    # Dibujar sobre el eje existente y pasar paleta directamente
-    sc = scales(Color = (; palette = :Set1_9))
-    grid = draw!(ax, plt_total, sc)
-    # Leyenda en la columna de la derecha
-    legend!(fig[1, 2], grid;
-        position = :right,
-        titleposition = :top,
-        framevisible = true,
-        padding = 5,
-    )
-
-    return fig, filename
-end
 
 function plot_isochrone_cmd(
     df_array::Vector{DataFrame},
@@ -494,10 +447,10 @@ function plot_isochrone_cmd(
     photsys::Symbol,
     mag::Symbol,
     color::Symbol;
-    only::Vector{T}=Int[],
+    only::Vector{T}=Int[], paramstring::String=""
 ) where {T<:Integer}
 
-    filename = "isochrone_cmd_$(family)_$(photsys)_$(color).png"
+    filename = "isochrone_cmd_$(family)_$(photsys)_$(color)$(paramstring).pdf"
     size_inches = (12, 9)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
@@ -518,7 +471,8 @@ function plot_isochrone_cmd(
 
 
     # Dibujar sobre el eje existente y pasar paleta directamente
-    sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 4, 1]), LineStyle=(; palette = [:solid, :dot, :dash]))
+
+    sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 4, 1][1:length(algorithm)]), LineStyle=(; palette = [:solid, :dot, :dash][1:length(algorithm)]))
     grid = draw!(fig[1,1], spec, sc; axis=(;yreversed = true))
 
     # Leyenda en la columna de la derecha
