@@ -459,13 +459,11 @@ function plot_isochrone_cmd(
     [] => (() -> algo) => :algorithm)
     for (df, algo) in zip(df_array, algorithm)]...)
     df_only = isempty(only) ? df : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
-    df_only.n_algo = [enumerate_algos(df_only.algorithm[i]) for i ∈ 1:nrow(df_only)]
-    println(df_only)
 
-    println(typeof(df_only.n_algo))
-    println(sum(ismissing.(df_only.n_algo)))
+    label₁ = uppercase(string(color)[end-1]*"-"*string(color)[end])
+    label₂ = uppercase(string(mag)[1])*" [mag]"
     spec = data(df_only) *
-            mapping(color, mag, color = :phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
+            mapping(color=>label₁, mag=>label₂, color = :phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
             visual(Lines)
 
 

@@ -181,6 +181,7 @@ function categorize_phases!(df::DataFrame, family::Symbol)
     return nothing
 end
 
+# creo que no la uso mas.
 function enumerate_algos(algo::Symbol)::Int64
     if algo == :istreams
         n = 1
