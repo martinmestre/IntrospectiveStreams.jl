@@ -11,6 +11,8 @@ module IntrospectiveStreams
     @reexport using PythonCall
     @reexport using Printf
 
+    const aog = AlgebraOfGraphics
+
     const coord = PythonCall.pynew()
     const u = PythonCall.pynew()
     const at = PythonCall.pynew()
@@ -91,7 +93,8 @@ module IntrospectiveStreams
             plot_track_on_μ_rc_plane_self_frame,
             plot_histog_cmd,
             plot_cmd,
-            plot_mags_density
+            plot_mags_density,
+            plot_mags_histogram
 
 
     export print_counts_per_mag_bin
