@@ -63,7 +63,9 @@ module IntrospectiveStreams
             filter_box_on_μ_plane!,
             reflex_correct!,
             reflex_correct_steps!,
-            clean_xmatch!
+            clean_xmatch!,
+            dropinfinite!,
+            dropinfinite
 
     export  z2feh_mist, z2feh_parsec,
             feh2z_mist, feh2z_parsec,
@@ -88,7 +90,13 @@ module IntrospectiveStreams
             plot_scatter_on_μ_corr_plane_self_frame,
             plot_track_on_μ_rc_plane_self_frame,
             plot_histog_cmd,
-            plot_isochrone_cmd
+            plot_cmd,
+            plot_mags_density
+
+
+    export print_counts_per_mag_bin
+    export rename_mag!
+
 
     export name_files_Gaia,
            name_files_photometry,
@@ -114,6 +122,8 @@ module IntrospectiveStreams
     include("methods/naming_files.jl")
     include("methods/missing.jl")
     include("methods/plots.jl")
+    include("methods/printing.jl")
+    include("methods/renaming.jl")
     include("pipelines.jl")
     include("../examples/example_pipeline.jl")
     include("../examples/example_isochrone.jl")

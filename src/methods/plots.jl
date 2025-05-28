@@ -425,8 +425,8 @@ function plot_histog_cmd(df::DataFrame, file::String)
     return fig
 end
 
-"""Plot single isochrone."""
-function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
+"""Plot single isochrone cmd."""
+function plot_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
     filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
     size_inches = (3*3, 3*3)
     size_pt = 72 .* size_inches
@@ -439,8 +439,8 @@ function plot_isochrone_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag:
     return fig, filename
 end
 
-
-function plot_isochrone_cmd(
+"""Plot multiple isochrones cmd."""
+function plot_cmd(
     df_array::Vector{DataFrame},
     algorithm::Vector{Symbol},
     family::Symbol,
@@ -460,16 +460,13 @@ function plot_isochrone_cmd(
     for (df, algo) in zip(df_array, algorithm)]...)
     df_only = isempty(only) ? df : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
 
-    label₁ = uppercase(string(color)[end-1]*"-"*string(color)[end])
-    label₂ = uppercase(string(mag)[1])*" [mag]"
+    label₁ = string(color)[end-1]*"-"*string(color)[end]
+    label₂ = string(mag)[1]*" [mag]"
     spec = data(df_only) *
             mapping(color=>label₁, mag=>label₂, color = :phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
             visual(Lines)
 
-
-
     # Dibujar sobre el eje existente y pasar paleta directamente
-
     sc = scales(; Color = (; palette = :Set1_9), LineWidth = (; palette = [1, 4, 1][1:length(algorithm)]), LineStyle=(; palette = [:solid, :dot, :dash][1:length(algorithm)]))
     grid = draw!(fig[1,1], spec, sc; axis=(;yreversed = true))
 
@@ -485,3 +482,49 @@ function plot_isochrone_cmd(
     return fig, filename
 end
 
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol})
+    pattern =join(string.(mags), "")
+    filename = "mags_$(pattern)_density.pdf"
+    size_inches = (12, 9)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+
+    labels = string.(mags)
+    plt =   data(df) * AlgebraOfGraphics.density(datalimits=(12,28)) *
+            mapping(mags .=> "magnitudes") *
+            mapping(color=dims(1) => renamer(labels))
+    sc = scales(; Color = (; palette = paleta ))
+    axis = (; xgridvisible=false, ygridvisible=false)
+
+    fig = Figure(size = size_pt, fontsize = 30)
+    draw!(fig[1,1], plt,sc, axis=axis)
+    return fig, filename
+end
+
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol})
+    pattern =join(string.(mags), "")
+    filename = "mags_$(pattern)_density.pdf"
+    size_inches = (11, 7)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 20)
+
+    labels = string.(mags)
+    plt =   data(df) * AlgebraOfGraphics.density(datalimits=(12,28)) *
+            mapping(mags .=> "magnitudes") *
+            mapping(color=dims(1) => renamer(labels) => "filter")
+    sc = scales(; Color = (; palette = paleta ))
+    axis = (; xgridvisible=false, ygridvisible=false)
+
+    fig = Figure(size = size_pt, fontsize = 30)
+    grid = draw!(fig[1,1], plt,sc, axis=axis)
+    legend!(fig[1, 2], grid;
+    position = :right,
+    titleposition = :top,
+    framevisible = true,
+    padding = 5
+    )
+    return fig, filename
+end
+
+function plot_mags_histogram()
+end
