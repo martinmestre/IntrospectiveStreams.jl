@@ -482,26 +482,8 @@ function plot_cmd(
     return fig, filename
 end
 
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol})
-    pattern =join(string.(mags), "")
-    filename = "mags_$(pattern)_density.pdf"
-    size_inches = (12, 9)
-    size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 30)
 
-    labels = string.(mags)
-    plt =   data(df) * AlgebraOfGraphics.density(datalimits=(12,28)) *
-            mapping(mags .=> "magnitudes") *
-            mapping(color=dims(1) => renamer(labels))
-    sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false)
-
-    fig = Figure(size = size_pt, fontsize = 30)
-    draw!(fig[1,1], plt,sc, axis=axis)
-    return fig, filename
-end
-
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol})
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}; kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(pattern)_density.pdf"
     size_inches = (11, 7)
@@ -509,18 +491,17 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     fig = Figure(size = size_pt, fontsize = 20)
 
     labels = string.(mags)
-    plt =   data(df) * aog.density(datalimits=(12,28)) *
+    plt =   data(df) * aog.density(; kwargs...) *
             mapping(mags .=> "magnitudes") *
             mapping(color=dims(1) => renamer(labels) => "filter")
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false)
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
 
-    fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
     legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
     return fig, filename
 end
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}, photsys::Symbol)
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}, photsys::Symbol; kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(photsys)_$(pattern)_density.pdf"
     size_inches = (11, 7)
@@ -528,11 +509,11 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     fig = Figure(size = size_pt, fontsize = 20)
 
     labels = string.(mags)
-    plt =   data(df) * aog.density(datalimits=(12,28)) *
+    plt =   data(df) * aog.density(; kwargs...) *
             mapping(mags .=> "magnitudes") *
             mapping(color=dims(1) => renamer(labels) => "filter")
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false)
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
@@ -540,7 +521,7 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     return fig, filename
 end
 
-function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}, photsys::Symbol)
+function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}, photsys::Symbol; kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(photsys)_$(pattern)_histogram.pdf"
     size_inches = (11, 7)
@@ -548,12 +529,13 @@ function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector
     fig = Figure(size = size_pt, fontsize = 20)
 
     labels = string.(mags)
-    plt =   data(df) * aog.histogram(datalimits=(12,28), bins=50) *
+    plt =   data(df) * aog.histogram(; kwargs...) *
             mapping(mags .=> "magnitudes") *
             mapping(color=dims(1) => renamer(labels) => "filter") *
-            visual(alpha=0.4)
+            mapping(dodge=dims(1))*
+            visual(alpha=0.8)
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false)
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
