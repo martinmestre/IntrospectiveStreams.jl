@@ -38,14 +38,14 @@ function eliminar_columnas_con_missing!(df::DataFrame)
     return df  # Devuelve el mismo DataFrame modificado
 end
 
-function dropinfinite!(df::DataFrame, cols=names(df))
+function dropinfinite!(df::DataFrame, cols::Vector{Symbol}=[:magnitude])
     # Combine column checks with OR using proper broadcasting
     inf_mask = reduce((a,b) -> a .| b, [isinf.(df[!, col]) for col in cols])
     delete!(df, inf_mask)
     return nothing
 end
 
-function dropinfinite(df::DataFrame, cols=names(df))
+function dropinfinite(df::DataFrame, cols::Vector{Symbol}=[:magnitude])
     # Combine column checks with OR using proper broadcasting
     inf_mask = reduce((a,b) -> a .| b, [isinf.(df[!, col]) for col in cols])
     df_c = df[Not(inf_mask),:]
