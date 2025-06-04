@@ -1,3 +1,23 @@
+
+""" function plot_scatter_on_sky(df::DataFrame, coords::Tuple{})
+Scatter plot on sky coordinates"""
+function plot_scatter_on_sky(df::DataFrame,
+                            photsys::Symbol,
+                            coord::Tuple{Symbol,Symbol}=(:ra,:dec),
+                            label::Tuple{String,String}=("RA~[°]","Dec~[°]"))
+    filename = "sky_coords_$(photsys).pdf"
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 20)
+    label₁ = L"%$(label[1])"
+    label₂ = L"%$(label[2])"
+    plt = data(df) *
+        visual(markersize=3, color=(:black,0.4)) *
+        mapping(coord[1] => label₁, coord[2] => label₂)
+    draw!(fig, plt)
+    return fig, filename
+end
+
 """Plot histogram on sky."""
 function plot_histog_on_sky(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (5*3, 3*3)
@@ -114,6 +134,10 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, df_track:
     return fig
 end
 
+
+"""
+    plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
+"""
 function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
@@ -135,6 +159,7 @@ function plot_scatter_on_sky_self_frame(name_s::String, df::DataFrame, file::Str
     save(file, fig, pt_per_unit=1)
     return fig
 end
+
 
 """Scatter plot on sky with PM (μ) arrows using stream's frame."""
 function plot_scatter_on_sky_μ_arrows_self_frame(df::DataFrame, df_track::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, step::Integer, file::String)
@@ -439,6 +464,10 @@ function plot_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, c
     return fig, filename
 end
 
+function mathL(x::String)
+    return L"%$(x)"
+end
+
 """Plot multiple isochrones cmd."""
 function plot_cmd(
     df_array::Vector{DataFrame},
@@ -458,12 +487,13 @@ function plot_cmd(
     df_merged = vcat([transform(df[:, [mag, color, :phase, :label]],
     [] => (() -> algo) => :algorithm)
     for (df, algo) in zip(df_array, algorithm)]...)
-    df_only = isempty(only) ? df : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
+    df_only = isempty(only) ? df_merged : @view df_merged[findall(row -> row.label in only, eachrow(df_merged)), :]
 
-    label₁ = string(color)[end-1]*"-"*string(color)[end]
+
+    label₁ = string(color)[end-1]*"-"*string(color)[end]*" [mag]"
     label₂ = string(mag)[1]*" [mag]"
     spec = data(df_only) *
-            mapping(color=>label₁, mag=>label₂, color = :phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
+            mapping(color=>label₁, mag=>label₂, color=:phase, linestyle=:algorithm=>presorted, linewidth=:algorithm=>presorted) *
             visual(Lines)
 
     # Dibujar sobre el eje existente y pasar paleta directamente
@@ -478,48 +508,9 @@ function plot_cmd(
         padding = 5
     )
 
-    # save(filepath, fig, pt_per_unit = 1)
     return fig, filename
 end
 
-
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}; kwargs...)
-    pattern =join(string.(mags), "")
-    filename = "mags_$(pattern)_density.pdf"
-    size_inches = (11, 7)
-    size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20)
-
-    labels = string.(mags)
-    plt =   data(df) * aog.density(; kwargs...) *
-            mapping(mags .=> "magnitude") *
-            mapping(color=dims(1) => renamer(labels) => "filter")
-    sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
-
-    grid = draw!(fig[1,1], plt,sc, axis=axis)
-    legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
-    return fig, filename
-end
-# function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol}, photsys::Symbol; kwargs...)
-#     pattern =join(string.(mags), "")
-#     filename = "mags_$(photsys)_$(pattern)_density.pdf"
-#     size_inches = (11, 7)
-#     size_pt = 72 .* size_inches
-#     fig = Figure(size = size_pt, fontsize = 20)
-
-#     labels = string.(mags)
-#     plt =   data(df) * aog.density(; kwargs...) *
-#             mapping(mags .=> "magnitude") *
-#             mapping(color=dims(1) => renamer(labels) => "filter")
-#     sc = scales(; Color = (; palette = paleta ))
-#     axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
-
-#     fig = Figure(size = size_pt, fontsize = 30)
-#     grid = draw!(fig[1,1], plt,sc, axis=axis)
-#     legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
-#     return fig, filename
-# end
 
 function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol},
                             photsys::Symbol; long=false, kwargs...)
@@ -528,22 +519,19 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     size_inches = (11, 7)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 20)
-
+    labels = latexstring.(mags)
     if long==true
-        df_s = stack(df[!,mags], mags, variable_name=:photfilter, value_name=:magnitude)
-        dropmissing!(df_s)
-        dropinfinite!(df_s)
-        plt =   data(df_s) * aog.density(; kwargs...) *
-                mapping(:magnitude => "magnitude") *
-                mapping(color=:photfilter => presorted => "filter")
-    else
-        labels = string.(mags)
         plt =   data(df) * aog.density(; kwargs...) *
-                mapping(mags .=> "magnitude") *
-                mapping(color=dims(1) => renamer(labels) => "filter")
+                mapping(:magnitude => L"\mathrm{magnitude}") *
+                mapping(color=:photfilter => presorted => L"\mathrm{filter}")
+    else
+        labels = latexstring.(mags)
+        plt =   data(df) * aog.density(; kwargs...) *
+                mapping(mags .=> L"\mathrm{magnitude}") *
+                mapping(color=dims(1) => renamer(labels) => L"\mathrm{filter}")
     end
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{PDF}")
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
@@ -560,24 +548,21 @@ function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector
     fig = Figure(size = size_pt, fontsize = 20)
 
     if long==true
-        df_s = stack(df[!,mags], mags, variable_name=:photfilter, value_name=:magnitude)
-        dropmissing!(df_s)
-        dropinfinite!(df_s)
-        plt =   data(df_s) * aog.histogram(; kwargs...) *
-                mapping(:magnitude => "magnitude") *
-                mapping(color=:photfilter => presorted => "filter") *
+        plt =   data(df) * aog.histogram(; kwargs...) *
+                mapping(:magnitude => L"\mathrm{magnitude}") *
+                mapping(color=:photfilter => presorted => L"\mathrm{filter}") *
                 mapping(dodge=:photfilter => presorted)*
                 visual(alpha=0.8)
     else
-        labels = string.(mags)
+        labels = latexstring.(mags)
         plt =   data(df) * aog.histogram(; kwargs...) *
-                mapping(mags .=> "magnitude") *
-                mapping(color=dims(1) => renamer(labels) => "filter") *
+                mapping(mags .=> L"\mathrm{magnitude}") *
+                mapping(color=dims(1) => renamer(labels) => L"\mathrm{filter}") *
                 mapping(dodge=dims(1))*
                 visual(alpha=0.8)
     end
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30)
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{count}")
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)

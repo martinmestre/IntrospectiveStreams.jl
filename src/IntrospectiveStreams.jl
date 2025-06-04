@@ -10,6 +10,7 @@ module IntrospectiveStreams
     # using ElectronDisplay
     @reexport using PythonCall
     @reexport using Printf
+    using LaTeXStrings
 
     const aog = AlgebraOfGraphics
 
@@ -94,7 +95,8 @@ module IntrospectiveStreams
             plot_histog_cmd,
             plot_cmd,
             plot_mags_density,
-            plot_mags_histogram
+            plot_mags_histogram,
+            plot_scatter_on_sky
 
 
     export print_counts_per_mag_bin
