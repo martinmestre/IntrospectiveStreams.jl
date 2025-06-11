@@ -521,7 +521,8 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     fig = Figure(size = size_pt, fontsize = 20)
     labels = latexstring.(mags)
     if long==true
-        plt =   data(df) * aog.density(; kwargs...) *
+        df_v = @view df[findall(row -> row.photfilter in mags, eachrow(df)), :]
+        plt =   data(df_v) * aog.density(; kwargs...) *
                 mapping(:magnitude => L"\mathrm{magnitude}") *
                 mapping(color=:photfilter => presorted => L"\mathrm{filter}")
     else
@@ -535,37 +536,51 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
-    legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
+    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
     return fig, filename
 end
 
 function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol},
-                            photsys::Symbol; long=false, kwargs...)
+                            photsys::Symbol; long::Bool=false, dodge::Bool=false, ylog::Bool=false, kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(photsys)_$(pattern)_histogram.pdf"
     size_inches = (11, 7)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 20)
+    datalims = kwargs[1]
 
     if long==true
-        plt =   data(df) * aog.histogram(; kwargs...) *
+        df_v = @view df[findall(row -> row.photfilter in mags, eachrow(df)), :]
+        plt =   data(df_v) * aog.histogram(; kwargs...) *
                 mapping(:magnitude => L"\mathrm{magnitude}") *
                 mapping(color=:photfilter => presorted => L"\mathrm{filter}") *
-                mapping(dodge=:photfilter => presorted)*
-                visual(alpha=0.8)
+                visual(alpha=0.5)
+        if dodge
+            plt *= mapping(dodge=:photfilter => presorted)
+        end
     else
         labels = latexstring.(mags)
         plt =   data(df) * aog.histogram(; kwargs...) *
                 mapping(mags .=> L"\mathrm{magnitude}") *
                 mapping(color=dims(1) => renamer(labels) => L"\mathrm{filter}") *
-                mapping(dodge=dims(1))*
-                visual(alpha=0.8)
+                visual(alpha=0.5)
+        if dodge
+            plt *= mapping(dodge=dims(1))
+        end
     end
+
     sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{count}")
+    if ylog==true
+        exp_rng=range(0,6,step=1)
+        ytickpos = (e->10.0.^e).(exp_rng)
+        yticknames=replace.(Showoff.showoff(10. .^(exp_rng), :scientific),"1.0×"=> "" )
+        axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{count}", yscale=log, yticks = (ytickpos, yticknames), limits=(datalims,(1,nothing)))
+    else
+        axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{count}")
+    end
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
-    legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
+    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
     return fig, filename
 end

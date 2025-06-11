@@ -10,7 +10,8 @@ module IntrospectiveStreams
     # using ElectronDisplay
     @reexport using PythonCall
     @reexport using Printf
-    using LaTeXStrings
+    @reexport using LaTeXStrings
+    @reexport using Showoff
 
     const aog = AlgebraOfGraphics
 
