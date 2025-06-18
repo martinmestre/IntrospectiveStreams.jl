@@ -100,8 +100,9 @@ module IntrospectiveStreams
             plot_scatter_on_sky
 
 
-    export print_counts_per_mag_bin
-    export rename_mag!
+    export  print_counts_per_mag_bin
+    export  rename_mag!,
+            rename_magerr!
 
 
     export name_files_Gaia,
