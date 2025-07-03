@@ -6,6 +6,7 @@ module IntrospectiveStreams
     using FITSIO
     @reexport using CSV, JLD2
     using Interpolations
+    @reexport using Colors
     @reexport using CairoMakie, AlgebraOfGraphics
     # using ElectronDisplay
     @reexport using PythonCall
@@ -99,6 +100,9 @@ module IntrospectiveStreams
             plot_mags_histogram,
             plot_scatter_on_sky
 
+    export  wongcolors,
+            wongcolors_ext,
+            paulcolors
 
     export  print_counts_per_mag_bin
     export  rename_mag!,
@@ -128,6 +132,7 @@ module IntrospectiveStreams
     include("methods/isochrones/isochrones.jl")
     include("methods/naming_files.jl")
     include("methods/missing.jl")
+    include("methods/colors.jl")
     include("methods/plots.jl")
     include("methods/printing.jl")
     include("methods/renaming.jl")

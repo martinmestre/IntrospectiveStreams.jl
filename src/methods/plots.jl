@@ -512,13 +512,12 @@ function plot_cmd(
 end
 
 
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol},
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta,
                             photsys::Symbol; long=false, kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(photsys)_$(pattern)_density.pdf"
     size_inches = (11, 7)
     size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20)
     labels = latexstring.(mags)
     if long==true
         df_v = @view df[findall(row -> row.photfilter in mags, eachrow(df)), :]
@@ -540,13 +539,12 @@ function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{S
     return fig, filename
 end
 
-function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector{Symbol},
+function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta,
                             photsys::Symbol; long::Bool=false, dodge::Bool=false, ylog::Bool=false, kwargs...)
     pattern =join(string.(mags), "")
     filename = "mags_$(photsys)_$(pattern)_histogram.pdf"
     size_inches = (11, 7)
     size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20)
     datalims = kwargs[1]
 
     if long==true
@@ -581,6 +579,6 @@ function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta::Vector
 
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
-    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
+    legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
     return fig, filename
 end
