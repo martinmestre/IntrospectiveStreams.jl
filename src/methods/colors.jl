@@ -11,7 +11,8 @@ function wongcolors_ext()
         RGB(148/255, 103/255, 189/255), # Lavander purple (Slightly desaturated violet)
         RGB(188/255, 189/255, 34/255), # Olive Yellow  (Strong yellow)
         RGB(128/255, 128/255, 0), #dark yellow (olive tone)
-        RGB(190/155, 0, 77/155) # Cherry Red
+        RGB(190/155, 0, 77/155), # Cherry Red
+        RGB(0,0,0) # Ch
     ]
 end
 function paulcolors()
@@ -37,6 +38,7 @@ function wongcolors()
         RGB(86/255, 180/255, 233/255), # sky blue
         RGB(213/255, 94/255, 0/255), # vermillion
         RGB(240/255, 228/255, 66/255), # yellow
+        RGB(0,0,0)
     ]
 end
 

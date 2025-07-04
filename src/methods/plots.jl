@@ -14,7 +14,30 @@ function plot_scatter_on_sky(df::DataFrame,
     plt = data(df) *
         visual(markersize=3, color=(:black,0.4)) *
         mapping(coord[1] => label₁, coord[2] => label₂)
-    draw!(fig, plt)
+    draw!(fig[1,1], plt)
+    return fig, filename
+end
+
+function plot_scatter_on_sky(df_track::DataFrame, df::DataFrame,
+                            photsys::Symbol,
+                            coord::Tuple{Symbol,Symbol}=(:ra,:dec),
+                            label::Tuple{String,String}=("RA~[°]","Dec~[°]"))
+    filename = "sky_coords_$(photsys).pdf"
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 20)
+    label₁ = L"%$(label[1])"
+    label₂ = L"%$(label[2])"
+
+    plt = data(df) * visual(markersize=3, color=(:black,0.4)) *
+            mapping(coord[1] => label₁, coord[2] => label₂)
+    plt_track = data(df_track) * visual(Lines, color=wongcolors()[2]) *
+            mapping(coord[1] => label₁, coord[2] => label₂)
+
+    range₁ = (minimum(df[!,coord[1]]), maximum(df[!,coord[1]]))
+    range₂ = (minimum(df[!,coord[2]]), maximum(df[!,coord[2]]))
+    axis = (; limits = (range₁, range₂))
+    draw!(fig[1,1], plt+plt_track, axis = axis)
     return fig, filename
 end
 

@@ -13,6 +13,7 @@ module IntrospectiveStreams
     @reexport using Printf
     @reexport using LaTeXStrings
     @reexport using Showoff
+    @reexport using StatsBase
 
     const aog = AlgebraOfGraphics
 
@@ -121,7 +122,7 @@ module IntrospectiveStreams
     export example_pipeline,
            example_interpolate_isochrone
 
-
+    export mode
 
 
     include("methods/extinctions.jl")
@@ -136,6 +137,7 @@ module IntrospectiveStreams
     include("methods/plots.jl")
     include("methods/printing.jl")
     include("methods/renaming.jl")
+    include("methods/statistics.jl")
     include("pipelines.jl")
     include("../examples/example_pipeline.jl")
     include("../examples/example_isochrone.jl")
