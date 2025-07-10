@@ -41,6 +41,31 @@ function plot_scatter_on_sky(df_track::DataFrame, df::DataFrame,
     return fig, filename
 end
 
+function plot_scatter_on_sky(df_track::DataFrame, stream_name::Symbol, df::DataFrame,
+    photsys::Symbol,
+    coord::Tuple{Symbol,Symbol}=(:ra,:dec),
+    label::Tuple{String,String}=("\\alpha~[°]","\\delta~[°]");
+    ℚ::Symbol=:D, label_ℚ::String="D~[\\textrm{kpc}]")
+    filename = "sky_coords_$(photsys)_$(stream_name)_track.pdf"
+    size_inches = (6*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 20, figure_padding = (10,10,10,10))
+    label₁ = L"%$(label[1])"
+    label₂ = L"%$(label[2])"
+
+    plt = data(df) * visual(markersize=3, color=(:black,0.4)) *
+    mapping(coord[1] => label₁, coord[2] => label₂)
+    plt_track = data(df_track) * visual(Scatter) *
+    mapping(coord[1] => label₁, coord[2] => label₂, color=ℚ)
+
+    range₁ = (minimum(df[!,coord[1]]), maximum(df[!,coord[1]]))
+    range₂ = (minimum(df[!,coord[2]]), maximum(df[!,coord[2]]))
+    axis = (; limits = (range₁, range₂), title=L"Orphan-Chenab~stream")
+    grid = draw!(fig[1,1], plt+plt_track, scales(Color=(;colormap=:viridis)), axis = axis)
+    colorbar!(fig[1,2], grid, label=L"%$(label_ℚ)")
+    return fig, filename
+end
+
 """Plot histogram on sky."""
 function plot_histog_on_sky(df::DataFrame, window::Tuple{Tuple{Number,Number},Tuple{Number,Number}}, file::String)
     size_inches = (5*3, 3*3)
