@@ -8,7 +8,7 @@ function plot_scatter_on_sky(df::DataFrame,
     filename = "sky_coords_$(photsys).pdf"
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20)
+    fig = Figure(size = size_pt, fontsize = 30)
     label₁ = L"%$(label[1])"
     label₂ = L"%$(label[2])"
     plt = data(df) *
@@ -25,7 +25,7 @@ function plot_scatter_on_sky(df_track::DataFrame, df::DataFrame,
     filename = "sky_coords_$(photsys).pdf"
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20)
+    fig = Figure(size = size_pt, fontsize = 30)
     label₁ = L"%$(label[1])"
     label₂ = L"%$(label[2])"
 
@@ -49,7 +49,7 @@ function plot_scatter_on_sky(df_track::DataFrame, stream_name::Symbol, df::DataF
     filename = "sky_coords_$(photsys)_$(stream_name)_track.pdf"
     size_inches = (6*3, 3*3)
     size_pt = 72 .* size_inches
-    fig = Figure(size = size_pt, fontsize = 20, figure_padding = (10,10,10,10))
+    fig = Figure(size = size_pt, fontsize = 30, figure_padding = (10,10,10,10))
     label₁ = L"%$(label[1])"
     label₂ = L"%$(label[2])"
 

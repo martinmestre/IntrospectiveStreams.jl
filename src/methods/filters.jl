@@ -29,6 +29,26 @@ function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, σ_c::Number)::Not
     return nothing
 end
 
+"""CMD filtering (Non Mutating)."""
+function filter_cmd(df_stream::DataFrame, df_iso::DataFrame, photfilter::Symbol, color::Symbol, phase_range::Tuple{I,I}=(0,3), σ_c::T) where {I<:Integer, T<:Real}
+    photfilter_abs = Symbol(photfilter*"_abs")
+    phase_mask = phase_range[1] .<= df_iso.phase .< phase_range[2]
+    df_iso_l = copy(df_iso[phase_mask,:])
+    df_iso_l.left = df_iso_l.color .- σ_c
+    df_iso_l.right = df_iso_l.color .+ σ_c
+    pol_x = vcat(df_iso_l.left, reverse(df_iso_l.right), df_iso_l.left[1])
+    temp = df_iso[!, photfilter]
+    pol_y = vcat(temp, reverse(temp), temp[1])
+    polygon = SVector.(pol_x, pol_y)
+
+    df_stream_l = copy(df_stream)
+    df_stream_l.distmod = pyconvert(Vector{Float64},coord.Distance(Py(df_stream_l.D)*u.kpc).distmod.value)
+
+    df_stream_l[!, photfilter_abs] = df_stream_l[!,photfilter] - df_stream_l[!,:distmod]
+    points = [[df_stream_l.color[i], df_stream[i, photfilter_abs]] for i in 1:nrow(df_stream_l) ]
+    inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
+    return subset(df_stream_l, identity(inside))
+end
 
 
 "Mask out field globular clusters."

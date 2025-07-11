@@ -49,6 +49,7 @@
 # end
 
 @testset "DownloadIsochroneEzParsec" begin
+    u_age = 1e9
     n=4
     exp_l = 5
     exp_h = 10.3
@@ -56,9 +57,9 @@
     metal_h = 0.5
     f_exp(x) = (exp_h-exp_l)*x+exp_l
     f_metal(x) = (metal_h-metal_l)*x+metal_l
-    family, photsys = :parsec, "hsc"
+    family, photsys = :parsec, :hsc
     for i ∈ 1:n
-        age = 10^f_exp(rand())
+        age = 10^f_exp(rand())/u_age
         metal = f_metal(rand())
         df_iso = download_isochrone(family, photsys, age, metal)
         @test typeof(df_iso) == DataFrame
@@ -66,17 +67,18 @@
 end
 
 @testset "DownloadIsochroneEzParsec Grid dispatch" begin
+    u_age = 1e9
     n=8
     exp_l = 5
     exp_h = 10.3
-    age_l, age_h = 10.0.^(exp_l, exp_h)
+    age_l, age_h = 10.0.^(exp_l, exp_h) ./u_age
     metal_l = -2.19999
     metal_h = 0.5
     step_age = (age_h-age_l)/n
     step_metal = (metal_h-metal_l)/n
     age = (age_l, age_h, step_age)
     metal = (metal_l, metal_h, step_metal)
-    family, photsys = :parsec, "hsc"
+    family, photsys = :parsec, :hsc
     df_iso = download_isochrone(family, photsys, age, metal)
     @test typeof(df_iso) == DataFrame
 end
