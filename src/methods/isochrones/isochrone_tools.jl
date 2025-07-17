@@ -113,6 +113,7 @@ end
 
 
 function list_age_metal_keys(dirpath::String)
+    @show dirpath
     allfiles = filter(!isdir, readdir(dirpath, join=true))
     ages = Float64[]
     metals = Float64[]

@@ -14,6 +14,7 @@ module IntrospectiveStreams
     @reexport using LaTeXStrings
     @reexport using Showoff
     @reexport using StatsBase
+    using PolygonOps
 
     const aog = AlgebraOfGraphics
 

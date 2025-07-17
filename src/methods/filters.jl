@@ -10,45 +10,26 @@ function curation!(df::DataFrame, tol::Vector{<:Number})::Nothing
 end
 
 """CMD filtering (Mutating)."""
-function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, σ_c::Number)::Nothing
-    phase_mask = 0 .<= df_iso.phase .< 3
-    df_iso = df_iso[phase_mask,:]
-    df_iso.color = df_iso.Gaia_BP_EDR3 - df_iso.Gaia_RP_EDR3
-    df_iso.left = df_iso.color .- σ_c
-    df_iso.right = df_iso.color .+ σ_c
-    pol_x = vcat(df_iso.left, reverse(df_iso.right), df_iso.left[1])
-    temp = df_iso.Gaia_G_EDR3
-    pol_y = vcat(temp, reverse(temp), temp[1])
+function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, df_track::DataFrame, photfilter::Symbol, color::Symbol, σ_c::Number; label_lim::Tuple{I,I}=(0,3)) where {I<:Integer}
+    phase_mask = label_lim[1] .<= df_iso.label .< label_lim[2]
+    df_isom = df_iso[phase_mask,:]
+    df_isom.left = df_isom[!,color] .- σ_c
+    df_isom.right = df_isom[!,color] .+ σ_c
+    pol_x = vcat(df_isom.left, reverse(df_isom.right), df_isom.left[1])
+    mag = df_isom[!, photfilter]
+    pol_y = vcat(mag, reverse(mag), mag[1])
     polygon = SVector.(pol_x, pol_y)
 
-    df_stream.distmod = pyconvert(Vector{Float64},coord.Distance(Py(df_stream.D)*u.kpc).distmod.value)
-    df_stream.g_abs = df_stream.g - df_stream.distmod
-    points = [[df_stream.color[i], df_stream.g_abs[i]] for i in 1:nrow(df_stream) ]
+    # The line below remains from Gaia df usage.
+    # df_stream.distmod = pyconvert(Vector{Float64},coord.Distance(Py(df_stream.D)*u.kpc).distmod.value)
+    interpolate_distance!(df_stream, df_track) # Generates :D and :distmod columns at df_stream
+    photfilter_abs = Symbol(photfilter,:_abs)
+    df_stream[!, photfilter_abs] = df_stream[!, photfilter] - df_stream.distmod
+    points = [[df_stream[!, color][i], df_stream[!, photfilter_abs][i]] for i in 1:nrow(df_stream) ]
     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
     @subset!(df_stream, identity(inside))
     return nothing
 end
-
-# """CMD filtering (Non Mutating)."""
-# function filter_cmd(df_stream::DataFrame, df_iso::DataFrame, photfilter::Symbol, color::Symbol, phase_range::Tuple{I,I}=(0,3), σ_c::T) where {I<:Integer, T<:Real}
-#     photfilter_abs = Symbol(photfilter*"_abs")
-#     phase_mask = phase_range[1] .<= df_iso.phase .< phase_range[2]
-#     df_iso_l = copy(df_iso[phase_mask,:])
-#     df_iso_l.left = df_iso_l.color .- σ_c
-#     df_iso_l.right = df_iso_l.color .+ σ_c
-#     pol_x = vcat(df_iso_l.left, reverse(df_iso_l.right), df_iso_l.left[1])
-#     temp = df_iso[!, photfilter]
-#     pol_y = vcat(temp, reverse(temp), temp[1])
-#     polygon = SVector.(pol_x, pol_y)
-
-#     df_stream_l = copy(df_stream)
-#     df_stream_l.distmod = pyconvert(Vector{Float64},coord.Distance(Py(df_stream_l.D)*u.kpc).distmod.value)
-
-#     df_stream_l[!, photfilter_abs] = df_stream_l[!,photfilter] - df_stream_l[!,:distmod]
-#     points = [[df_stream_l.color[i], df_stream[i, photfilter_abs]] for i in 1:nrow(df_stream_l) ]
-#     inside = [inpolygon(p, polygon; in=true, on=false, out=false) for p in points]
-#     return subset(df_stream_l, identity(inside))
-# end
 
 
 "Mask out field globular clusters."

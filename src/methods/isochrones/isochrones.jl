@@ -100,6 +100,7 @@ function interpolate_isochrone(family::Symbol, photsys::Symbol, age::T, metal::R
     @assert family == :parsec "Only Parsec isochrones accepted for the moment"
     @assert -2.19<metal≤0.5 "Metallicity should satisfy: -2.19 < FeH ≤ 0.5 (FeH≈MH)."
     dirpath = joinpath(PKGDIR,"artifacts", "isochrones", string(family), string(photsys))
+    @show dirpath
     if !ezbool
         @assert 0≤age≤14.0 "Age [Gyr] should fulfill: 0 ≤  age [Gyr] ≤ 14.0"
         df, key = find_nearest_isochrone(dirpath, age, metal)
