@@ -11,7 +11,7 @@ end
 
 """CMD filtering (Mutating)."""
 function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, df_track::DataFrame, photfilter::Symbol, color::Symbol, σ_c::Number; label_lim::Tuple{I,I}=(0,3)) where {I<:Integer}
-    phase_mask = label_lim[1] .<= df_iso.label .< label_lim[2]
+    phase_mask = label_lim[1] .<= df_iso.label .<= label_lim[2]
     df_isom = df_iso[phase_mask,:]
     df_isom.left = df_isom[!,color] .- σ_c
     df_isom.right = df_isom[!,color] .+ σ_c

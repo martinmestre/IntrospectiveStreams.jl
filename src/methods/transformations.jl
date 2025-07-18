@@ -1,4 +1,13 @@
 """Compute stream stars' self coordinates using Galstreams'track and add to dataframe."""
+function compute_in_self_coords!(df::DataFrame, frame::Py, photsys)::Nothing
+    sky_coords = coord.SkyCoord(ra=Py(df.ra)*u.deg, dec=Py(df.dec)*u.deg, frame="icrs")
+    self_coords = sky_coords.transform_to(frame)
+    df.ϕ₁ = pyconvert(Vector{Float64}, self_coords.phi1.deg)
+    df.ϕ₂ = pyconvert(Vector{Float64}, self_coords.phi2.deg)
+    return nothing
+end
+
+"""Compute stream stars' self coordinates using Galstreams'track and add to dataframe."""
 function compute_in_self_coords!(df::DataFrame, frame::Py)::Nothing
     sky_coords = coord.SkyCoord(ra=Py(df.ra)*u.deg, dec=Py(df.dec)*u.deg, pm_ra_cosdec=Py(df.pmra)*u.mas/u.yr, pm_dec=Py(df.pmdec)*u.mas/u.yr, frame="icrs")
     self_coords = sky_coords.transform_to(frame)

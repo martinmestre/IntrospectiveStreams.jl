@@ -72,7 +72,8 @@ module IntrospectiveStreams
             reflex_correct_steps!,
             clean_xmatch!,
             dropinfinite!,
-            dropinfinite
+            dropinfinite,
+            interpolate_distance!
 
     export  z2feh_mist, z2feh_parsec,
             feh2z_mist, feh2z_parsec,

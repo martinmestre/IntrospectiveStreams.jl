@@ -498,6 +498,22 @@ function plot_histog_cmd(df::DataFrame, file::String)
     return fig
 end
 
+"""Plot stellar data and single isochrone cmd."""
+function plot_cmd(df_stars::DataFrame, df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
+    filename = "data_and isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
+    plt = data(df_view)*mapping(color=>"$(color)", mag =>"uppercase($(mag))", color=:phase=>"Phase")*
+    visual(Lines, linewidth=2)
+    plt_stars = data(df_stars)*mapping(color=>"$(color)", Symbol(mag,:_abs)=>"uppercase($(mag))")*
+    visual(Scatter, markersize=2, color=:black)
+    grid = draw!(fig, plt+plt_stars, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
+    legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+    return fig, filename
+end
+
 """Plot single isochrone cmd."""
 function plot_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
     filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
