@@ -22,7 +22,7 @@ function filter_cmd!(df_stream::DataFrame, df_iso::DataFrame, df_track::DataFram
 
     # The line below remains from Gaia df usage.
     # df_stream.distmod = pyconvert(Vector{Float64},coord.Distance(Py(df_stream.D)*u.kpc).distmod.value)
-    interpolate_distance!(df_stream, df_track) # Generates :D and :distmod columns at df_stream
+    set_distance!(df_stream, df_track) # Generates :D and :distmod columns at df_stream
     photfilter_abs = Symbol(photfilter,:_abs)
     df_stream[!, photfilter_abs] = df_stream[!, photfilter] - df_stream.distmod
     points = [[df_stream[!, color][i], df_stream[!, photfilter_abs][i]] for i in 1:nrow(df_stream) ]

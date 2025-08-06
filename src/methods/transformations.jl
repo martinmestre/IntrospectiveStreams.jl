@@ -72,10 +72,16 @@ end
     interpolate_distance_from_track!(df_stream::T, df_track::T)::Nothing where {T::DataFrame}
 This function receives a stream df that has been already reduced to be within the "ra" domain of the track df.
 """
-function interpolate_distance!(df_stream::DataFrame, df_track::DataFrame, var::Symbol=:ra)
+function set_distance!(df_stream::DataFrame, df_track::DataFrame, var::Symbol=:ra)
     # itp = cubic_spline_interpolation(df_track[!,var], df_track.D)
     itp = linear_interpolation((df_track[!,var],), df_track.D)
     df_stream.D = itp.(df_stream[!,var])
+    df_stream.distmod = 5log10.(df_stream.D) .+ 10
+    return nothing
+end
+
+function set_distance!(df_stream::DataFrame, distance::T) where {T<:Real}
+    df_stream.D = fill(distance, nrow(df_stream))
     df_stream.distmod = 5log10.(df_stream.D) .+ 10
     return nothing
 end

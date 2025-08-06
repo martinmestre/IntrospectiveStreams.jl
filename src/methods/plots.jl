@@ -60,7 +60,7 @@ function plot_scatter_on_sky(df_track::DataFrame, stream_name::Symbol, df::DataF
 
     range₁ = (minimum(df[!,coord[1]]), maximum(df[!,coord[1]]))
     range₂ = (minimum(df[!,coord[2]]), maximum(df[!,coord[2]]))
-    axis = (; limits = (range₁, range₂), title=L"Orphan-Chenab~stream")
+    axis = (; limits = (range₁, range₂), title=L"%$(uppercasefirst(string(stream_name)))~stream")
     grid = draw!(fig[1,1], plt+plt_track, scales(Color=(;colormap=:viridis)), axis = axis)
     colorbar!(fig[1,2], grid, label=L"%$(label_ℚ)")
     return fig, filename
@@ -498,20 +498,33 @@ function plot_histog_cmd(df::DataFrame, file::String)
     return fig
 end
 
+"""Plot stellar aparent magnitude data."""
+function plot_cmd(df_stars::DataFrame, photsys::Symbol, mag::Symbol, color::Symbol)
+    filename = "cmd_aparent_data_$(photsys)_$(color).pdf"
+    size_inches = (3*5, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    plt = data(df_stars)*mapping(color=>"$(color)", mag=>"$(mag)")*
+                visual(Scatter, markersize=2, color=:black)
+    grid = draw!(fig, plt, axis=(title="$(photsys) CMD", yreversed=true, limits=((-1,3),(nothing, nothing))))
+    legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+    return fig, filename
+end
+
 """Plot stellar data and single isochrone cmd."""
 function plot_cmd(df_stars::DataFrame, df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
-    filename = "data_and isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
-    size_inches = (3*3, 3*3)
+    filename = "cmd_data_and isochrone_$(family)_$(photsys)_$(color).pdf"
+    size_inches = (3*5, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
     df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
-    plt = data(df_view)*mapping(color=>"$(color)", mag =>"uppercase($(mag))", color=:phase=>"Phase")*
+    plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(uppercase(string(mag)))", color=:phase=>"Phase")*
     visual(Lines, linewidth=2)
-    plt_stars = data(df_stars)*mapping(color=>"$(color)", Symbol(mag,:_abs)=>"uppercase($(mag))")*
+    plt_stars = data(df_stars)*mapping(color=>"$(color)", Symbol(mag,:_abs)=>"$(uppercase(string(mag)))")*
     visual(Scatter, markersize=2, color=:black)
-    grid = draw!(fig, plt+plt_stars, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
+    grid = draw!(fig, plt+plt_stars, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true, limits=((-1,3),(nothing, nothing))))
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
-    return fig, filename
+    return fig, filename, grid[1,1].axis
 end
 
 """Plot single isochrone cmd."""

@@ -73,7 +73,7 @@ module IntrospectiveStreams
             clean_xmatch!,
             dropinfinite!,
             dropinfinite,
-            interpolate_distance!
+            set_distance!
 
     export  z2feh_mist, z2feh_parsec,
             feh2z_mist, feh2z_parsec,
