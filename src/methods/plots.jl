@@ -473,70 +473,100 @@ function plot_track_on_μ_corr_plane_self_frame(df_track::DataFrame, file::Strin
     return fig
 end
 
-"""Plot CMD histogram with or without isochrone."""
-function plot_histog_cmd(df::DataFrame, df_iso::DataFrame, file::String)
-    size_inches = (3*3, 3*3)
+
+"""Plot stellar aparent color-color diagram."""
+function plot_ccd(df::DataFrame, photsys::Symbol, mag₁::Symbol, mag₂::Symbol, mag₃::Symbol)
+    filename = "ccd_aparent_data_$(photsys)_$(color).pdf"
+    size_inches = (10, 10)
     size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")*histogram(bins=100)
-    plt_iso = data(df_iso)*mapping(:color=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="red")
-    plt_iso_bord = data(df_iso)*mapping([:left,:right].=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="black")
-    ag = draw!(fig, plt+plt_iso+plt_iso_bord, axis=(;yreversed=true))#, limits=((0,1.5),(14,22))))
-    colorbar!(fig[1,2], ag)
-    save(file, fig, pt_per_unit=1)
-    return fig
+    fig = Figure(size = size_pt, fontsize = 30)
+    color₁ = Symbol("color_"*string(mag₁)[1]*string(mag₂)[1])
+    color₂ = Symbol("color_"*string(mag₂)[1]*string(mag₃)[1])
+    color₁_string = L"%$(mag₁)-%$(mag₂)~[\mathrm{mag}]"
+    color₂_string = L"%$(mag₂)-%$(mag₃)~[\mathrm{mag}]"
+    plt = data(df)*mapping(color₁=>color₁_string, color₂=>color₂_string)*
+                visual(Scatter, markersize=2, color=:black)
+    grid = draw!(fig, plt, axis=(title=L"\mathrm{%$(uppercase(string(photsys)))}\quad\mathrm{CCD}", limits=((-1,2),(-1,2))))
+    legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+    return fig, filename
 end
 
-function plot_histog_cmd(df::DataFrame, file::String)
-    size_inches = (5*3, 3*3)
-    size_pt = 72 .* size_inches
-    fig = Figure(resolution = size_pt, fontsize = 30)
-    plt = data(df)*histogram(bins=300)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")
-    ag = draw!(fig, plt, axis=(;yreversed=true))
-    colorbar!(fig[1,2], ag)
-    save(file, fig, pt_per_unit=1)
-    return fig
-end
-
-"""Plot stellar aparent magnitude data."""
-function plot_cmd(df_stars::DataFrame, photsys::Symbol, mag::Symbol, color::Symbol)
+"""Plot stellar aparent or absolute CMD."""
+function plot_cmd(df_stars::DataFrame, photsys::Symbol, mag₁::Symbol, mag₂::Symbol, mag₃::Symbol,
+                absolute::Bool=false, withtitle::Bool=false)
     filename = "cmd_aparent_data_$(photsys)_$(color).pdf"
     size_inches = (3*5, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
-    plt = data(df_stars)*mapping(color=>"$(color)", mag=>"$(mag)")*
+    color_field = Symbol("color_"*string(mag₁)[1]*string(mag₂)[1])
+    color_string = L"%$(mag₁)-%$(mag₂)~[\mathrm{mag}]"
+    if absolute
+        mag_field = Symbol(mag₃,:_abs)
+        mag_label = L"%$(uppercase(string(mag₃)))~[\mathrm{mag}]"
+    else
+        mag_field = mag₃
+        mag_label = L"%$(mag₃)~[\mathrm{mag}]"
+    end
+    plt = data(df_stars)*mapping(color_field=>color_string, mag_field=>mag_label)*
                 visual(Scatter, markersize=2, color=:black)
-    grid = draw!(fig, plt, axis=(title="$(photsys) CMD", yreversed=true, limits=((-1,3),(nothing, nothing))))
+
+    x_min = minimum(df_stars[!, color_field])
+    x_max = maximum(df_stars[!, color_field])
+    y_min = minimum(df_stars[!, mag_field])
+    y_max = maximum(df_stars[!, mag_field])
+    if withtitle
+        axis = (title="$(uppercase(string(photsys)))   CMD", yreversed=true, limits=((-1, 2),(y_min,y_max)))
+    else
+        axis = (yreversed=true, limits=((-1,2),(y_min,y_max)))
+    end
+    grid = draw!(fig, plt, axis=axis)
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
     return fig, filename
 end
 
 """Plot stellar data and single isochrone cmd."""
-function plot_cmd(df_stars::DataFrame, df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
+function plot_cmd(df_stars::DataFrame, df::DataFrame, family::Symbol, photsys::Symbol, mag₁::Symbol, mag₂::Symbol, mag₃::Symbol, only::Vector{T}, withtitle::Bool=false) where {T<:Integer}
     filename = "cmd_data_and isochrone_$(family)_$(photsys)_$(color).pdf"
     size_inches = (3*5, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
+    color_field = Symbol("color_"*string(mag₁)[1]*string(mag₂)[1])
+    color_string = L"%$(mag₁)-%$(mag₂)~[\mathrm{mag}]"
+    mag_abs = Symbol(mag₃,:_abs)
     df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
-    plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(uppercase(string(mag)))", color=:phase=>"Phase")*
-    visual(Lines, linewidth=2)
-    plt_stars = data(df_stars)*mapping(color=>"$(color)", Symbol(mag,:_abs)=>"$(uppercase(string(mag)))")*
-    visual(Scatter, markersize=2, color=:black)
-    grid = draw!(fig, plt+plt_stars, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true, limits=((-1,3),(nothing, nothing))))
-    legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
+    plt = data(df_view)*mapping(color_field=>color_string, mag₃ =>L"%$(uppercase(string(mag₃)))~[\mathrm{mag}]", color=:phase=>"Phase")*visual(Lines, linewidth=2)
+    plt_stars = data(df_stars)*mapping(color_field=>color_string, mag_abs=>L"%$(uppercase(string(mag₃)))~[\mathrm{mag}]")*visual(Scatter, markersize=2, color=:black, label="Stars", legend=(;markersize=10))
+    Δx = 1.5
+    x_min = max( minimum(df_view[!, color_field])-Δx, minimum(df_stars[!, color_field]) )
+    x_max = min( maximum(df_view[!, color_field])+Δx, maximum(df_stars[!, color_field]) )
+    y_min = minimum(df_stars[!, mag_abs])
+    y_max = maximum(df_stars[!, mag_abs])
+    if withtitle
+        axis = (title="$(uppercase(string(photsys)))   CMD", yreversed=true, limits=((x_min,x_max),(y_min,y_max)))
+    else
+        axis = (yreversed=true, limits=((x_min,x_max),(y_min,y_max)))
+    end
+    grid = draw!(fig, plt_stars+plt, scales(Color = (; palette = :Set1_9)), axis=axis)
+    legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20), framevisible=false, titleposition=:top, order = [:Label, :Color], padding=20)
     return fig, filename, grid[1,1].axis
 end
 
 """Plot single isochrone cmd."""
-function plot_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol; only::Vector{T}=Int[]) where {T<:Integer}
+function plot_cmd(df::DataFrame, family::Symbol, photsys::Symbol, mag::Symbol, color::Symbol,
+                only::Vector{T}, withtitle::Bool=false) where {T<:Integer}
     filename = "isochrone_cmd_$(family)_$(photsys)_$(color).pdf"
-    size_inches = (3*3, 3*3)
+    size_inches = (3*5, 3*3)
     size_pt = 72 .* size_inches
     fig = Figure(size = size_pt, fontsize = 30)
     df_view = isempty(only) ? df : @view df[findall(row -> row.label in only, eachrow(df)), :]
     plt = data(df_view)*mapping(color=>"$(color)", mag =>"$(mag)", color=:phase=>"Phase")*
     visual(Lines,linewidth=2)
-    grid = draw!(fig, plt, scales(Color = (; palette = :Set1_9)), axis=(title="$(photsys) CMD", yreversed=true))
+    if withtitle
+        axis = (title="$(photsys) CMD", yreversed=true)
+    else
+        axis = (; yreversed=true)
+    end
+    grid = draw!(fig, plt, scales(Color = (; palette = :Set1_9)), axis=axis)
     legend!(fig[1,2],grid,; position=:right, titleposition=:top, framevisible=true, padding=5)
     return fig, filename
 end
@@ -552,8 +582,8 @@ function plot_cmd(
     family::Symbol,
     photsys::Symbol,
     mag::Symbol,
-    color::Symbol;
-    only::Vector{T}=Int[], paramstring::String=""
+    color::Symbol,
+    only::Vector{T}; paramstring::String=""
 ) where {T<:Integer}
 
     filename = "isochrone_cmd_$(family)_$(photsys)_$(color)$(paramstring).pdf"
@@ -589,31 +619,30 @@ function plot_cmd(
 end
 
 
-function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta,
-                            photsys::Symbol; long=false, kwargs...)
-    pattern =join(string.(mags), "")
-    filename = "mags_$(photsys)_$(pattern)_density.pdf"
-    size_inches = (11, 7)
-    size_pt = 72 .* size_inches
-    labels = latexstring.(mags)
-    if long==true
-        df_v = @view df[findall(row -> row.photfilter in mags, eachrow(df)), :]
-        plt =   data(df_v) * aog.density(; kwargs...) *
-                mapping(:magnitude => L"\mathrm{magnitude}") *
-                mapping(color=:photfilter => presorted => L"\mathrm{filter}")
-    else
-        labels = latexstring.(mags)
-        plt =   data(df) * aog.density(; kwargs...) *
-                mapping(mags .=> L"\mathrm{magnitude}") *
-                mapping(color=dims(1) => renamer(labels) => L"\mathrm{filter}")
-    end
-    sc = scales(; Color = (; palette = paleta ))
-    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{PDF}")
 
-    fig = Figure(size = size_pt, fontsize = 30)
-    grid = draw!(fig[1,1], plt,sc, axis=axis)
-    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
-    return fig, filename
+"""Plot CMD histogram with or without isochrone."""
+function plot_histog_cmd(df::DataFrame, df_iso::DataFrame, file::String)
+    size_inches = (3*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")*histogram(bins=100)
+    plt_iso = data(df_iso)*mapping(:color=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="red")
+    plt_iso_bord = data(df_iso)*mapping([:left,:right].=>L"$BP-RP$ [Mag]", :Gaia_G_EDR3=>L"$G$ [Mag]")*visual(Lines,color="black")
+    ag = draw!(fig, plt+plt_iso+plt_iso_bord, axis=(;yreversed=true))#, limits=((0,1.5),(14,22))))
+    colorbar!(fig[1,2], ag)
+    save(file, fig, pt_per_unit=1)
+    return fig
+end
+
+function plot_histog_cmd(df::DataFrame, file::String)
+    size_inches = (5*3, 3*3)
+    size_pt = 72 .* size_inches
+    fig = Figure(resolution = size_pt, fontsize = 30)
+    plt = data(df)*histogram(bins=300)*mapping(:color=>L"$BP-RP$ [Mag]", :g_abs=>L"$G$ [Mag]")
+    ag = draw!(fig, plt, axis=(;yreversed=true))
+    colorbar!(fig[1,2], ag)
+    save(file, fig, pt_per_unit=1)
+    return fig
 end
 
 function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta,
@@ -657,5 +686,68 @@ function plot_mags_histogram(df::DataFrame, mags::Vector{Symbol}, paleta,
     fig = Figure(size = size_pt, fontsize = 30)
     grid = draw!(fig[1,1], plt,sc, axis=axis)
     legend!(fig[1,1], grid; tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
+    return fig, filename
+end
+
+
+function plot_mags_density(df::DataFrame, mags::Vector{Symbol}, paleta,
+                            photsys::Symbol; long=false, kwargs...)
+    pattern =join(string.(mags), "")
+    filename = "mags_$(photsys)_$(pattern)_density.pdf"
+    size_inches = (11, 7)
+    size_pt = 72 .* size_inches
+    labels = latexstring.(mags)
+    if long==true
+        df_v = @view df[findall(row -> row.photfilter in mags, eachrow(df)), :]
+        plt =   data(df_v) * aog.density(; kwargs...) *
+                mapping(:magnitude => L"\mathrm{magnitude}") *
+                mapping(color=:photfilter => presorted => L"\mathrm{filter}")
+    else
+        labels = latexstring.(mags)
+        plt =   data(df) * aog.density(; kwargs...) *
+                mapping(mags .=> L"\mathrm{magnitude}") *
+                mapping(color=dims(1) => renamer(labels) => L"\mathrm{filter}")
+    end
+    sc = scales(; Color = (; palette = paleta ))
+    axis = (; xgridvisible=false, ygridvisible=false, xticks=10:2:30, ylabel=L"\mathrm{PDF}")
+
+    fig = Figure(size = size_pt, fontsize = 30)
+    grid = draw!(fig[1,1], plt,sc, axis=axis)
+    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20))
+    return fig, filename
+end
+
+"""Plot Color errors."""
+function plot_cmd_error(df_stars::DataFrame, photsys::Symbol, mag₁::Symbol, mag₂::Symbol, mag₃::Symbol)
+    filename = "color_error_$(photsys)_$(color).pdf"
+    size_inches = (8, 8)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    f_e(x,y) = log10(sqrt(x^2+y^2))
+    errors = (Symbol(mag₂,:_err),Symbol(mag₃,:_err))
+    error_string = L"\log_{10}\left(\sqrt{ \sigma_{%$(mag₂)}^2+\sigma_{%$(mag₃)}^2}\right)~[\mathrm{mag}]"
+    plt = data(df_stars)*mapping(mag₁=>L"%$(mag₁)~[\mathrm{mag}]", errors => f_e =>error_string)*
+                visual(Scatter, markersize=2, color=:black)
+    grid = draw!(fig, plt, axis=(;title="$(uppercase(string(photsys))) color error", limits=(nothing, nothing)))
+    legend!(fig[1,1],grid; position=:right, titleposition=:top, framevisible=true, padding=5)
+    return fig, filename
+end
+
+"""Plot Color errors and a curve given with two x-y arrays."""
+function plot_cmd_error(df_stars::DataFrame, photsys::Symbol, mag₁::Symbol, mag₂::Symbol, mag₃::Symbol, x::Vector{T}, y::Vector{T}) where {T<:Real}
+    wong = wongcolors_ext()
+    filename = "color_error_$(photsys)_$(color).pdf"
+    size_inches = (8, 8)
+    size_pt = 72 .* size_inches
+    fig = Figure(size = size_pt, fontsize = 30)
+    f_e(x,y) = log10(sqrt(x^2+y^2))
+    errors = (Symbol(mag₂,:_err),Symbol(mag₃,:_err))
+    error_string = L"\log_{10}\left(\sqrt{ \sigma_{%$(mag₂)}^2+\sigma_{%$(mag₃)}^2}\right)~[\mathrm{mag}]"
+    plt = data(df_stars)*mapping(mag₁=>L"%$(mag₁)~[\mathrm{mag}]", errors => f_e =>error_string)*
+                visual(Scatter, markersize=2, color=:black, label="Data", legend=(; markersize=10))
+    plt_c = mapping(x,y)*visual(Lines, linewidth=2, color=wong[3], label="Fit")
+    grid = draw!(fig, plt+plt_c, axis=(;title="$(uppercase(string(photsys))) color error", limits=(nothing, nothing)))
+    # legend!(fig[1,1], grid; position=:right, titleposition=:top, framevisible=true, padding=5)
+    legend!(fig[1,1], grid; tellwidth=false, halign=:left, valign=:top, margin=(10, 10, 10, 10), patchsize=(20,20), framevisible=false)
     return fig, filename
 end

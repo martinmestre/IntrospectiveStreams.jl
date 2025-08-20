@@ -14,6 +14,8 @@ module IntrospectiveStreams
     @reexport using LaTeXStrings
     @reexport using Showoff
     @reexport using StatsBase
+    @reexport using Turing
+
     using PolygonOps
 
     const aog = AlgebraOfGraphics
@@ -101,7 +103,9 @@ module IntrospectiveStreams
             plot_cmd,
             plot_mags_density,
             plot_mags_histogram,
-            plot_scatter_on_sky
+            plot_scatter_on_sky,
+            plot_ccd,
+            plot_cmd_error
 
     export  wongcolors,
             wongcolors_ext,
@@ -124,6 +128,8 @@ module IntrospectiveStreams
     export example_pipeline,
            example_interpolate_isochrone
 
+    export quadratic_fit
+
     export mode
 
 
@@ -140,6 +146,7 @@ module IntrospectiveStreams
     include("methods/printing.jl")
     include("methods/renaming.jl")
     include("methods/statistics.jl")
+    include("methods/optimizations/curve_fits.jl")
     include("pipelines.jl")
     include("../examples/example_pipeline.jl")
     include("../examples/example_isochrone.jl")
